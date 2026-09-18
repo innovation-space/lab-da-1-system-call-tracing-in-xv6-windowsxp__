@@ -1103,15 +1103,10 @@ main(int argc, char *argv[])
 }"""
     add_command_box(doc, "SOURCE CODE: user/racetest.c", racetest_c_code)
 
-    # Save to Workspace
-    workspace_path = "/Users/raffe/Documents/GitHub/lab-da-1-system-call-tracing-in-xv6-windowsxp__/XV6_SPINLOCK_RACE_PRESENTATION.docx"
-    doc.save(workspace_path)
-    print(f"[SUCCESS] Saved Word document to workspace: {workspace_path}")
-
-    # Save to Downloads
+    # Save directly to Downloads folder
     downloads_path = "/Users/raffe/Downloads/XV6_SPINLOCK_RACE_PRESENTATION.docx"
-    shutil.copyfile(workspace_path, downloads_path)
-    print(f"[SUCCESS] Saved clean deliverable to Downloads: {downloads_path}")
+    doc.save(downloads_path)
+    print(f"[SUCCESS] Saved Master Word Document directly to Downloads: {downloads_path}")
 
 if __name__ == "__main__":
     build_document()
