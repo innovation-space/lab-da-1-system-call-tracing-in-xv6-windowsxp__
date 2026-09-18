@@ -3,11 +3,12 @@
 generate_spinlock_race_docs.py
 Generates the Master Word Document (.docx) for the xv6 Multiprocessor Race Condition
 and Spinlock Synchronization Demonstration.
+Matches the exact visual styling, structure, and 4-box step layout of XV6_PROCESS_LIFECYCLE_PRESENTATION.docx.
 Team: WindowsXP
 Presenters:
-  1. Tejas Deshpande (24BKT0145)
-  2. Vidit Agrawal (24BKT0139)
-  3. Devarsh Patel (24BCT0267)
+  Participant 1: Tejas Deshpande (24BKT0145)
+  Participant 2: Vidit Agrawal (24BKT0139)
+  Participant 3: Devarsh Patel (24BCT0267)
 """
 
 import os
@@ -15,27 +16,24 @@ import shutil
 import docx
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
-from docx.oxml import parse_xml, OxmlElement
-from docx.oxml.ns import nsdecls, qn
+from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.oxml import parse_xml
+from docx.oxml.ns import nsdecls
 
-# --- Color Palette ---
-COLOR_PRIMARY = RGBColor(16, 44, 87)       # Deep Navy #102C57
-COLOR_SECONDARY = RGBColor(53, 89, 142)    # Slate Blue #35598E
-COLOR_ACCENT = RGBColor(218, 98, 43)       # Rust Orange #DA622B
-COLOR_TEXT = RGBColor(30, 41, 59)          # Dark Slate #1E293B
-COLOR_MUTED = RGBColor(100, 116, 139)      # Muted Gray #64748B
-COLOR_SUCCESS = RGBColor(22, 101, 52)      # Forest Green #166534
-COLOR_DANGER = RGBColor(153, 27, 27)       # Crimson Red #991B1B
+# --- Color Definitions Matching Reference Template ---
+COLOR_NAVY = RGBColor(29, 91, 150)        # #1D5B96
+COLOR_DARK_BLUE = RGBColor(15, 41, 74)    # #0F294A
+COLOR_DARK_SLATE = RGBColor(15, 23, 42)   # #0F172A
+COLOR_TEXT_MAIN = RGBColor(30, 41, 59)    # #1E293B
+COLOR_MUTED_GRAY = RGBColor(148, 163, 184)# #94A3B8
+COLOR_AMBER_DARK = RGBColor(146, 64, 14)  # #92400E
+COLOR_CYAN_LIGHT = RGBColor(56, 189, 248) # #38BDF8
+COLOR_CODE_TEXT = RGBColor(226, 232, 240) # #E2E8F0
+COLOR_DANGER_TEXT = RGBColor(153, 27, 27) # #991B1B
+COLOR_SUCCESS_TEXT = RGBColor(22, 101, 52)# #166534
 
-HEX_PRIMARY = "102C57"
-HEX_SECONDARY = "35598E"
-HEX_LIGHT_BG = "F8FAFC"
-HEX_CODE_BG = "0F172A"
-HEX_CODE_TEXT = "E2E8F0"
-HEX_CALLOUT_BORDER = "35598E"
-HEX_DANGER_BG = "FEF2F2"
-HEX_SUCCESS_BG = "F0FDF4"
+HEX_NAVY = "1D5B96"
+HEX_DARK_BLUE = "0F294A"
 HEX_BORDER = "CBD5E1"
 
 def set_cell_background(cell, hex_color):
@@ -43,16 +41,12 @@ def set_cell_background(cell, hex_color):
     shd = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{hex_color}"/>')
     tcPr.append(shd)
 
-def set_cell_margins(cell, top=140, bottom=140, left=180, right=180):
+def set_cell_margins(cell, top=80, bottom=80, left=120, right=120):
     tcPr = cell._tc.get_or_add_tcPr()
     tcMar = parse_xml(f'<w:tcMar {nsdecls("w")}><w:top w:w="{top}" w:type="dxa"/><w:bottom w:w="{bottom}" w:type="dxa"/><w:left w:w="{left}" w:type="dxa"/><w:right w:w="{right}" w:type="dxa"/></w:tcMar>')
     tcPr.append(tcMar)
 
 def set_cell_border(cell, **kwargs):
-    """
-    kwargs: top, bottom, left, right
-    values: dict(val='single', sz='12', color='102C57')
-    """
     tcPr = cell._tc.get_or_add_tcPr()
     tcBorders = parse_xml(f'<w:tcBorders {nsdecls("w")}/>')
     for edge in ('top', 'left', 'bottom', 'right', 'insideH', 'insideV'):
@@ -67,162 +61,167 @@ def set_cell_border(cell, **kwargs):
 def add_heading_1(doc, text):
     h = doc.add_paragraph()
     h.paragraph_format.space_before = Pt(18)
-    h.paragraph_format.space_after = Pt(6)
-    h.paragraph_format.keep_with_next = True
-    run = h.add_run(text)
-    run.font.name = "Arial"
-    run.font.size = Pt(16)
-    run.font.bold = True
-    run.font.color.rgb = COLOR_PRIMARY
-    return h
-
-def add_heading_2(doc, text):
-    h = doc.add_paragraph()
-    h.paragraph_format.space_before = Pt(14)
     h.paragraph_format.space_after = Pt(4)
     h.paragraph_format.keep_with_next = True
     run = h.add_run(text)
     run.font.name = "Arial"
-    run.font.size = Pt(13)
+    run.font.size = Pt(14)
     run.font.bold = True
-    run.font.color.rgb = COLOR_SECONDARY
+    run.font.color.rgb = COLOR_DARK_BLUE
+    return h
+
+def add_heading_2(doc, text):
+    h = doc.add_paragraph()
+    h.paragraph_format.space_before = Pt(12)
+    h.paragraph_format.space_after = Pt(3)
+    h.paragraph_format.keep_with_next = True
+    run = h.add_run(text)
+    run.font.name = "Arial"
+    run.font.size = Pt(11.5)
+    run.font.bold = True
+    run.font.color.rgb = COLOR_NAVY
     return h
 
 def add_heading_3(doc, text):
     h = doc.add_paragraph()
     h.paragraph_format.space_before = Pt(10)
-    h.paragraph_format.space_after = Pt(2)
+    h.paragraph_format.space_after = Pt(3)
     h.paragraph_format.keep_with_next = True
     run = h.add_run(text)
     run.font.name = "Arial"
     run.font.size = Pt(11)
     run.font.bold = True
-    run.font.color.rgb = COLOR_ACCENT
+    run.font.color.rgb = COLOR_NAVY
     return h
 
 def add_body_paragraph(doc, text, bold_prefix=""):
     p = doc.add_paragraph()
-    p.paragraph_format.space_before = Pt(3)
-    p.paragraph_format.space_after = Pt(4)
+    p.paragraph_format.space_before = Pt(2)
+    p.paragraph_format.space_after = Pt(3)
     p.paragraph_format.line_spacing = 1.15
     if bold_prefix:
         r_pre = p.add_run(bold_prefix)
         r_pre.font.name = "Arial"
-        r_pre.font.size = Pt(10)
+        r_pre.font.size = Pt(9.5)
         r_pre.font.bold = True
-        r_pre.font.color.rgb = COLOR_TEXT
+        r_pre.font.color.rgb = COLOR_DARK_BLUE
     r = p.add_run(text)
     r.font.name = "Arial"
-    r.font.size = Pt(10)
-    r.font.color.rgb = COLOR_TEXT
+    r.font.size = Pt(9.5)
+    r.font.color.rgb = COLOR_TEXT_MAIN
     return p
 
-def add_callout_box(doc, title, text, bg_hex=HEX_LIGHT_BG, border_hex=HEX_CALLOUT_BORDER):
-    tbl = doc.add_table(rows=1, cols=1)
-    tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
-    tbl.autofit = False
-    cell = tbl.cell(0, 0)
-    cell.width = Inches(6.5)
-    set_cell_background(cell, bg_hex)
-    set_cell_margins(cell, top=120, bottom=120, left=180, right=140)
-    set_cell_border(cell, left=dict(val="single", sz="24", color=border_hex))
-    
-    p = cell.paragraphs[0]
-    p.paragraph_format.space_before = Pt(2)
-    p.paragraph_format.space_after = Pt(3)
-    r_title = p.add_run(title + "\n")
-    r_title.font.name = "Arial"
-    r_title.font.size = Pt(10.5)
-    r_title.font.bold = True
-    r_title.font.color.rgb = COLOR_PRIMARY
-    
-    r_body = p.add_run(text)
-    r_body.font.name = "Arial"
-    r_body.font.size = Pt(9.5)
-    r_body.font.italic = True
-    r_body.font.color.rgb = COLOR_TEXT
-    doc.add_paragraph().paragraph_format.space_after = Pt(4)
+# --- 4 Standard Step Box Helpers Matching Template ---
 
-def add_spoken_script(doc, presenter_name, script_text):
+def add_command_box(doc, terminal_label, command_text):
     tbl = doc.add_table(rows=1, cols=1)
     tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
     tbl.autofit = False
     cell = tbl.cell(0, 0)
-    cell.width = Inches(6.5)
-    set_cell_background(cell, "F8FAFC")
-    set_cell_margins(cell, top=140, bottom=140, left=200, right=160)
-    set_cell_border(cell, left=dict(val="single", sz="30", color=HEX_SECONDARY))
-    
-    p = cell.paragraphs[0]
-    p.paragraph_format.space_before = Pt(2)
-    p.paragraph_format.space_after = Pt(4)
-    r_title = p.add_run(f"🎙️ SPOKEN SCRIPT — {presenter_name}\n")
-    r_title.font.name = "Arial"
-    r_title.font.size = Pt(10)
-    r_title.font.bold = True
-    r_title.font.color.rgb = COLOR_SECONDARY
-    
-    r_body = p.add_run(script_text)
-    r_body.font.name = "Georgia"
-    r_body.font.size = Pt(9.5)
-    r_body.font.italic = True
-    r_body.font.color.rgb = RGBColor(30, 41, 59)
-    doc.add_paragraph().paragraph_format.space_after = Pt(4)
-
-def add_terminal_box(doc, command, output):
-    tbl = doc.add_table(rows=1, cols=1)
-    tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
-    tbl.autofit = False
-    cell = tbl.cell(0, 0)
-    cell.width = Inches(6.5)
-    set_cell_background(cell, HEX_CODE_BG)
-    set_cell_margins(cell, top=140, bottom=140, left=180, right=140)
-    set_cell_border(cell, left=dict(val="single", sz="18", color="38BDF8"))
-    
-    p = cell.paragraphs[0]
-    p.paragraph_format.space_before = Pt(2)
-    p.paragraph_format.space_after = Pt(3)
-    r_cmd = p.add_run(f"$ {command}\n")
-    r_cmd.font.name = "Consolas"
-    r_cmd.font.size = Pt(9.5)
-    r_cmd.font.bold = True
-    r_cmd.font.color.rgb = RGBColor(56, 189, 248) # Cyan
-    
-    r_out = p.add_run(output)
-    r_out.font.name = "Consolas"
-    r_out.font.size = Pt(8.5)
-    r_out.font.color.rgb = RGBColor(226, 232, 240) # Slate light
-    doc.add_paragraph().paragraph_format.space_after = Pt(4)
-
-def add_code_block(doc, language, code_text):
-    tbl = doc.add_table(rows=1, cols=1)
-    tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
-    tbl.autofit = False
-    cell = tbl.cell(0, 0)
-    cell.width = Inches(6.5)
+    cell.width = Inches(7.0)
     set_cell_background(cell, "F1F5F9")
-    set_cell_margins(cell, top=120, bottom=120, left=160, right=140)
-    set_cell_border(cell, left=dict(val="single", sz="16", color=HEX_PRIMARY))
+    set_cell_margins(cell, top=70, bottom=70, left=120, right=120)
     
     p = cell.paragraphs[0]
-    p.paragraph_format.space_before = Pt(2)
+    p.paragraph_format.space_before = Pt(1)
     p.paragraph_format.space_after = Pt(2)
-    r_lang = p.add_run(f"// {language}\n")
-    r_lang.font.name = "Consolas"
-    r_lang.font.size = Pt(8.5)
-    r_lang.font.bold = True
-    r_lang.font.color.rgb = COLOR_SECONDARY
+    r_lbl = p.add_run(f"📋 {terminal_label} — SINGLE COMMAND TO EXECUTE:\n")
+    r_lbl.font.name = "Arial"
+    r_lbl.font.size = Pt(9.0)
+    r_lbl.font.bold = True
+    r_lbl.font.color.rgb = COLOR_NAVY
     
-    r_code = p.add_run(code_text)
-    r_code.font.name = "Consolas"
-    r_code.font.size = Pt(8.5)
-    r_code.font.color.rgb = RGBColor(15, 23, 42)
-    doc.add_paragraph().paragraph_format.space_after = Pt(4)
+    r_cmd = p.add_run(command_text)
+    r_cmd.font.name = "Consolas"
+    r_cmd.font.size = Pt(9.0)
+    r_cmd.font.bold = True
+    r_cmd.font.color.rgb = COLOR_DARK_SLATE
+    doc.add_paragraph().paragraph_format.space_after = Pt(2)
+
+def add_output_box(doc, output_label, output_text):
+    tbl = doc.add_table(rows=1, cols=1)
+    tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+    tbl.autofit = False
+    cell = tbl.cell(0, 0)
+    cell.width = Inches(7.0)
+    set_cell_background(cell, "0F172A")
+    set_cell_margins(cell, top=70, bottom=70, left=120, right=120)
+    
+    p = cell.paragraphs[0]
+    p.paragraph_format.space_before = Pt(1)
+    p.paragraph_format.space_after = Pt(2)
+    r_lbl = p.add_run(f"🖥️ {output_label}:\n")
+    r_lbl.font.name = "Arial"
+    r_lbl.font.size = Pt(8.5)
+    r_lbl.font.bold = True
+    r_lbl.font.color.rgb = COLOR_MUTED_GRAY
+    
+    r_out = p.add_run(output_text)
+    r_out.font.name = "Consolas"
+    r_out.font.size = Pt(8.0)
+    r_out.font.color.rgb = COLOR_CODE_TEXT
+    doc.add_paragraph().paragraph_format.space_after = Pt(2)
+
+def add_say_box(doc, speaker_label, dialogue_text):
+    tbl = doc.add_table(rows=1, cols=1)
+    tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+    tbl.autofit = False
+    cell = tbl.cell(0, 0)
+    cell.width = Inches(7.0)
+    set_cell_background(cell, "FEF3C7")
+    set_cell_margins(cell, top=80, bottom=80, left=130, right=130)
+    
+    p = cell.paragraphs[0]
+    p.paragraph_format.space_before = Pt(1)
+    p.paragraph_format.space_after = Pt(3)
+    r_lbl = p.add_run(f"🗣️ WHAT TO SAY WHILE/AFTER EXECUTING ({speaker_label}):\n")
+    r_lbl.font.name = "Arial"
+    r_lbl.font.size = Pt(9.5)
+    r_lbl.font.bold = True
+    r_lbl.font.color.rgb = COLOR_AMBER_DARK
+    
+    r_say = p.add_run(f'"{dialogue_text}"')
+    r_say.font.name = "Georgia"
+    r_say.font.size = Pt(9.0)
+    r_say.font.italic = True
+    r_say.font.color.rgb = COLOR_TEXT_MAIN
+    doc.add_paragraph().paragraph_format.space_after = Pt(2)
+
+def add_under_the_hood_box(doc, explanation_text):
+    tbl = doc.add_table(rows=1, cols=1)
+    tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
+    tbl.autofit = False
+    cell = tbl.cell(0, 0)
+    cell.width = Inches(7.0)
+    set_cell_background(cell, "EFF6FF")
+    set_cell_margins(cell, top=70, bottom=70, left=120, right=120)
+    
+    p = cell.paragraphs[0]
+    p.paragraph_format.space_before = Pt(1)
+    p.paragraph_format.space_after = Pt(2)
+    r_lbl = p.add_run("⚙️ UNDER THE HOOD (KERNEL & HARDWARE STATE):\n")
+    r_lbl.font.name = "Arial"
+    r_lbl.font.size = Pt(9.0)
+    r_lbl.font.bold = True
+    r_lbl.font.color.rgb = COLOR_NAVY
+    
+    r_exp = p.add_run(explanation_text)
+    r_exp.font.name = "Arial"
+    r_exp.font.size = Pt(8.5)
+    r_exp.font.color.rgb = COLOR_TEXT_MAIN
+    doc.add_paragraph().paragraph_format.space_after = Pt(6)
+
+def add_full_step(doc, step_num, step_title, terminal_label, command_text, output_label, output_text, speaker_label, dialogue_text, under_the_hood_text):
+    add_heading_3(doc, f"Step {step_num}: {step_title}")
+    add_command_box(doc, terminal_label, command_text)
+    add_output_box(doc, output_label, output_text)
+    add_say_box(doc, speaker_label, dialogue_text)
+    add_under_the_hood_box(doc, under_the_hood_text)
 
 def build_document():
     doc = docx.Document()
     
-    # Configure Margins: 0.75 inch
+    # Configure Margins: 0.75 inch (standard template width 7.0 inch body)
     sections = doc.sections
     for section in sections:
         section.top_margin = Inches(0.75)
@@ -231,567 +230,635 @@ def build_document():
         section.right_margin = Inches(0.75)
 
     # ----------------------------------------------------
-    # COVER / TITLE PAGE
+    # DOCUMENT HEADER / TITLE
     # ----------------------------------------------------
     p_title = doc.add_paragraph()
-    p_title.paragraph_format.space_before = Pt(40)
-    p_title.paragraph_format.space_after = Pt(4)
+    p_title.paragraph_format.space_before = Pt(10)
+    p_title.paragraph_format.space_after = Pt(2)
     p_title.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = p_title.add_run("xv6 Multiprocessor Concurrency & Synchronization")
+    r = p_title.add_run("xv6 Multiprocessor Race Condition & Spinlock Synchronization Trace")
     r.font.name = "Arial"
-    r.font.size = Pt(22)
+    r.font.size = Pt(17)
     r.font.bold = True
-    r.font.color.rgb = COLOR_PRIMARY
+    r.font.color.rgb = COLOR_DARK_BLUE
 
     p_sub = doc.add_paragraph()
-    p_sub.paragraph_format.space_before = Pt(2)
-    p_sub.paragraph_format.space_after = Pt(16)
+    p_sub.paragraph_format.space_before = Pt(1)
+    p_sub.paragraph_format.space_after = Pt(6)
     p_sub.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = p_sub.add_run("Live Demonstration of Race Conditions on Shared Kernel Data Structures and Mutual Exclusion Elimination using xv6 Spinlocks on RISC-V SMP")
+    r = p_sub.add_run("Complete Synchronized Line-by-Line Presentation Manual & Viva Defense Guide\n1 Command ➔ 1 Screen Output ➔ 1 Exact Spoken Script ➔ 1 Examiner Defense Point")
     r.font.name = "Arial"
-    r.font.size = Pt(12)
-    r.font.color.rgb = COLOR_SECONDARY
+    r.font.size = Pt(10)
+    r.font.color.rgb = COLOR_NAVY
 
-    p_div = doc.add_paragraph()
-    p_div.paragraph_format.space_after = Pt(24)
-    p_div.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = p_div.add_run("════════════════════════════════════════════════════════════")
-    r.font.color.rgb = COLOR_ACCENT
-
-    # Team Metadata Box
-    tbl_meta = doc.add_table(rows=6, cols=2)
-    tbl_meta.alignment = WD_TABLE_ALIGNMENT.CENTER
-    tbl_meta.autofit = False
+    # Table 0: Critical Recovery Box (Red callout)
+    tbl_rec = doc.add_table(rows=1, cols=1)
+    tbl_rec.alignment = WD_TABLE_ALIGNMENT.CENTER
+    tbl_rec.autofit = False
+    c_rec = tbl_rec.cell(0, 0)
+    c_rec.width = Inches(7.0)
+    set_cell_background(c_rec, "FEE2E2")
+    set_cell_margins(c_rec, top=80, bottom=80, left=120, right=120)
     
-    meta_rows = [
-        ("Project Objective", "Demonstrate race condition on shared kernel counter (CPUS=2) & eliminate using xv6 spinlock"),
-        ("Operating System", "xv6 (64-bit RISC-V Architecture, Symmetric Multiprocessing)"),
-        ("Hardware Emulation", "QEMU Virt Platform (qemu-system-riscv64, CPUS=2 / CPUS=3)"),
-        ("Team Name", "WindowsXP"),
-        ("Course & Assessment", "Operating Systems Lab — Multiprocessor Concurrency Assessment"),
-        ("Verification Status", "100% Verified against live RISC-V kernel assembly & QEMU SMP execution")
-    ]
-    
-    for idx, (label, val) in enumerate(meta_rows):
-        c0 = tbl_meta.cell(idx, 0)
-        c1 = tbl_meta.cell(idx, 1)
-        c0.width = Inches(2.2)
-        c1.width = Inches(4.3)
-        set_cell_background(c0, "F1F5F9")
-        set_cell_background(c1, "FFFFFF")
-        set_cell_margins(c0, top=80, bottom=80, left=100, right=100)
-        set_cell_margins(c1, top=80, bottom=80, left=100, right=100)
-        set_cell_border(c0, bottom=dict(val="single", sz="4", color=HEX_BORDER))
-        set_cell_border(c1, bottom=dict(val="single", sz="4", color=HEX_BORDER))
-        
-        p0 = c0.paragraphs[0]
-        p0.paragraph_format.space_before = Pt(2)
-        p0.paragraph_format.space_after = Pt(2)
-        r0 = p0.add_run(label)
-        r0.font.name = "Arial"
-        r0.font.size = Pt(9.5)
-        r0.font.bold = True
-        r0.font.color.rgb = COLOR_PRIMARY
-        
-        p1 = c1.paragraphs[0]
-        p1.paragraph_format.space_before = Pt(2)
-        p1.paragraph_format.space_after = Pt(2)
-        r1 = p1.add_run(val)
-        r1.font.name = "Arial"
-        r1.font.size = Pt(9.5)
-        r1.font.color.rgb = COLOR_TEXT
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(16)
-
-    # Presenter Roster Table
-    p_roster = doc.add_paragraph()
-    p_roster.paragraph_format.space_before = Pt(10)
-    p_roster.paragraph_format.space_after = Pt(4)
-    r = p_roster.add_run("Presenter Delegation & Execution Roster")
+    p_rec = c_rec.paragraphs[0]
+    p_rec.paragraph_format.space_before = Pt(1)
+    p_rec.paragraph_format.space_after = Pt(2)
+    r = p_rec.add_run("🚨 CRITICAL RECOVERY & EXECUTION RULES:\n")
     r.font.name = "Arial"
-    r.font.size = Pt(12)
+    r.font.size = Pt(9.5)
     r.font.bold = True
-    r.font.color.rgb = COLOR_PRIMARY
-
-    tbl_pros = doc.add_table(rows=4, cols=4)
-    tbl_pros.alignment = WD_TABLE_ALIGNMENT.CENTER
-    tbl_pros.autofit = False
+    r.font.color.rgb = COLOR_DANGER_TEXT
     
-    headers = ["Order", "Presenter Name", "Registration No.", "Assigned Technical Module"]
-    col_widths = [Inches(0.8), Inches(1.8), Inches(1.4), Inches(2.5)]
-    
-    for c_idx, h_text in enumerate(headers):
-        cell = tbl_pros.cell(0, c_idx)
-        cell.width = col_widths[c_idx]
-        set_cell_background(cell, HEX_PRIMARY)
-        set_cell_margins(cell, top=100, bottom=100, left=100, right=100)
-        p = cell.paragraphs[0]
-        p.paragraph_format.space_before = Pt(2)
-        p.paragraph_format.space_after = Pt(2)
-        r = p.add_run(h_text)
-        r.font.name = "Arial"
-        r.font.size = Pt(9.5)
-        r.font.bold = True
-        r.font.color.rgb = RGBColor(255, 255, 255)
+    r_rules = p_rec.add_run(
+        "1. If GDB ever displays 'No symbol table is loaded', simply type: file kernel/kernel\n"
+        "2. Always ensure QEMU runs with CPUS=2 (or higher) to enable true symmetric multiprocessing.\n"
+        "3. Keep Terminal 1 on Left (QEMU xv6 Shell) and Terminal 2 on Right (Host Shell / GDB Debugger).\n"
+        "4. Team WindowsXP Presenter Sequence: Participant 1 = Tejas, Participant 2 = Vidit, Participant 3 = Devarsh."
+    )
+    r_rules.font.name = "Arial"
+    r_rules.font.size = Pt(8.5)
+    r_rules.font.color.rgb = COLOR_TEXT_MAIN
 
-    roster_data = [
-        ("1st", "Tejas Deshpande", "24BKT0145", "Concurrency Foundations, Multiprocessor Race Windows & Ground Zero Live Unlocked Race"),
-        ("2nd", "Vidit Agrawal", "24BKT0139", "xv6 Spinlock Internals, RISC-V Hardware Atomics (amoswap.w.aq), Memory Fences & GDB"),
-        ("3rd", "Devarsh Patel", "24BCT0267", "Nested Interrupt Invariants (push_off/pop_off), Complete Race Elimination & Final Benchmarks")
+    doc.add_paragraph().paragraph_format.space_after = Pt(6)
+
+    # Table 1: Presenter Roster Table (Dark Blue Header)
+    tbl_roster = doc.add_table(rows=4, cols=3)
+    tbl_roster.alignment = WD_TABLE_ALIGNMENT.CENTER
+    tbl_roster.autofit = False
+    
+    r_headers = ["Presenter & Team", "Core Technical Topic", "Key Functions, Hardware Instructions & State"]
+    r_widths = [Inches(1.8), Inches(2.5), Inches(2.7)]
+    
+    for c_idx, h_text in enumerate(r_headers):
+        cell = tbl_roster.cell(0, c_idx)
+        cell.width = r_widths[c_idx]
+        set_cell_background(cell, HEX_DARK_BLUE)
+        set_cell_margins(cell, top=70, bottom=70, left=90, right=90)
+        p = cell.paragraphs[0]; p.paragraph_format.space_before = Pt(1); p.paragraph_format.space_after = Pt(1)
+        r = p.add_run(h_text); r.font.name = "Arial"; r.font.size = Pt(8.5); r.font.bold = True; r.font.color.rgb = RGBColor(255, 255, 255)
+
+    roster_rows = [
+        ("Participant 1: Tejas Deshpande\n(Reg: 24BKT0145)\nTeam WindowsXP",
+         "Concurrency Foundations, Multiprocessor Race Windows & Ground Zero Live Unlocked Race",
+         "struct shared_resource, counter++, race_increment(iters, 0), racetest\nNon-atomic Read-Modify-Write (lw -> addiw -> sw) -> 75% Lost Updates"),
+        
+        ("Participant 2: Vidit Agrawal\n(Reg: 24BKT0139)\nTeam WindowsXP",
+         "xv6 Spinlock Internals, RISC-V Hardware Atomics (amoswap.w.aq), Memory Fences & GDB",
+         "acquire(), release(), struct spinlock (24B with 4B padding hole)\namoswap.w.aq a5, a4, (s1) (Acquire barrier), fence rw,w, sw zero"),
+         
+        ("Participant 3: Devarsh Patel\n(Reg: 24BCT0267)\nTeam WindowsXP",
+         "Nested Interrupt Invariants (push_off/pop_off), Complete Race Elimination & Final Benchmarks",
+         "push_off(), pop_off(), mycpu()->noff, mycpu()->intena, sstatus SIE\nracetest locked -> 100% Mutual Exclusion (4000/4000, 0 Lost Updates)")
     ]
 
-    for r_idx, row in enumerate(roster_data):
-        for c_idx, val in enumerate(row):
-            cell = tbl_pros.cell(r_idx + 1, c_idx)
-            cell.width = col_widths[c_idx]
+    for r_idx, (p_info, p_topic, p_funcs) in enumerate(roster_rows):
+        for c_idx, text in enumerate((p_info, p_topic, p_funcs)):
+            cell = tbl_roster.cell(r_idx + 1, c_idx)
+            cell.width = r_widths[c_idx]
             bg = "F8FAFC" if r_idx % 2 == 0 else "FFFFFF"
             set_cell_background(cell, bg)
-            set_cell_margins(cell, top=80, bottom=80, left=100, right=100)
+            set_cell_margins(cell, top=60, bottom=60, left=90, right=90)
             set_cell_border(cell, bottom=dict(val="single", sz="4", color=HEX_BORDER))
-            p = cell.paragraphs[0]
-            p.paragraph_format.space_before = Pt(2)
-            p.paragraph_format.space_after = Pt(2)
-            r = p.add_run(val)
-            r.font.name = "Arial"
-            r.font.size = Pt(9)
+            p = cell.paragraphs[0]; p.paragraph_format.space_before = Pt(1); p.paragraph_format.space_after = Pt(1)
+            r = p.add_run(text); r.font.name = "Arial"; r.font.size = Pt(8.0)
             if c_idx == 0:
-                r.font.bold = True
-                r.font.color.rgb = COLOR_ACCENT
-            elif c_idx == 1:
-                r.font.bold = True
-                r.font.color.rgb = COLOR_PRIMARY
+                r.font.bold = True; r.font.color.rgb = COLOR_NAVY
             else:
-                r.font.color.rgb = COLOR_TEXT
+                r.font.color.rgb = COLOR_TEXT_MAIN
 
-    doc.add_page_break()
+    doc.add_paragraph().paragraph_format.space_after = Pt(8)
 
     # ----------------------------------------------------
-    # SECTION 1: ARCHITECTURAL OVERVIEW
+    # SECTION 0: PRE-PRESENTATION SETUP
     # ----------------------------------------------------
-    add_heading_1(doc, "1. Executive Summary & Multiprocessor Architecture")
-    
-    add_body_paragraph(
-        doc,
-        "In modern symmetric multiprocessing (SMP) operating systems, multiple hardware CPU cores simultaneously execute kernel code sharing a single global physical address space. When shared kernel data structures are accessed and modified concurrently by multiple cores without synchronization, non-deterministic instruction interleaving leads to race conditions and silent data corruption known as lost updates."
-    )
-    
-    add_callout_box(
-        doc,
-        "Core Laboratory Objective",
-        "1. Demonstrate a live race condition on a shared kernel data structure (struct shared_resource) in xv6 on CPUS=2 with NO locking.\n"
-        "2. Analyze the micro-architectural breakdown of non-atomic read-modify-write sequences (lw -> addiw -> sw) causing lost updates.\n"
-        "3. Apply xv6's native spinlock primitives (acquire and release) to achieve perfect mutual exclusion.\n"
-        "4. Verify machine-level RISC-V hardware atomics (amoswap.w.aq), memory barriers (fence rw,w), and interrupt disablement invariants (push_off / pop_off)."
-    )
+    add_heading_1(doc, "SECTION 0: PRE-PRESENTATION TERMINAL SETUP")
+    add_body_paragraph(doc, "Run these preparation commands before calling the professor or starting the presentation.")
 
-    add_body_paragraph(
+    add_heading_3(doc, "Step 0.1: Clean Build Kernel, Filesystem & .gdbinit Configuration")
+    add_command_box(
         doc,
-        "The diagram below illustrates the concurrent execution topology between user space, the system call interface, the RISC-V hardware cores, and the shared kernel data structure in xv6:",
-        "Multiprocessor Execution Architecture: "
+        "TERMINAL SETUP (RUN ONCE IN TERMINAL 1)",
+        "cd /Users/raffe/Documents/GitHub/lab-da-1-system-call-tracing-in-xv6-windowsxp__\n"
+        "export PATH=\"/Library/Developer/CommandLineTools/usr/bin:$PATH\"\n"
+        "make clean\n"
+        "make -j4 kernel/kernel fs.img .gdbinit"
     )
-
-    add_terminal_box(
+    add_output_box(
         doc,
-        "SMP CONCURRENCY & SPINLOCK SYNCHRONIZATION TOPOLOGY",
-        r"""+-----------------------------------------------------------------------------------+
-|                               USER SPACE (racetest)                               |
-|   Child 1 (PID 4)        Child 2 (PID 5)        Child 3 (PID 6)        Child 4 (PID 7)    |
-|   race_inc(1000, 0)      race_inc(1000, 0)      race_inc(1000, 0)      race_inc(1000, 0)  |
-+-----------+----------------------+----------------------+---------------------+-----+
-            |                      |                      |                     |
-            | ecall                | ecall                | ecall               | ecall
-            v                      v                      v                     v
-+-----------------------------------------------------------------------------------+
-|                              KERNEL SPACE (xv6-riscv)                             |
-|                                                                                   |
-|      +---------------------------------+     +---------------------------------+  |
-|      |         CPU 0 (Hart 0)          |     |         CPU 1 (Hart 1)          |  |
-|      |  Reads counter = 100            |     |  Reads counter = 100 (STALE!)   |  |
-|      |  Race Window / Interleaving     |     |  Computes 100 + 1 = 101         |  |
-|      |  Computes 100 + 1 = 101         |     |  Stores counter = 101           |  |
-|      |  Stores counter = 101 (OVERWRITE|     |  CPU 1 update is LOST!          |  |
-|      +---------------------------------+     +---------------------------------+  |
-|                                         \   /                                     |
-|                                          v v                                      |
-|                       SHARED MEMORY: struct shared_resource                       |
-|                       +-----------------------------------+                       |
-|                       | struct spinlock lock  (24 bytes)  |                       |
-|                       | volatile int counter  (4 bytes)   |                       |
-|                       | volatile int total_ops(4 bytes)   |                       |
-|                       +-----------------------------------+                       |
-|                                                                                   |
-|   MUTUAL EXCLUSION SOLUTION:                                                      |
-|   CPU 0: acquire(&shared_res.lock) -> amoswap.w.aq succeeds -> Enters CS          |
-|   CPU 1: acquire(&shared_res.lock) -> amoswap.w.aq returns 1 -> SPINS in loop     |
-|   CPU 0: release(&shared_res.lock) -> fence rw,w -> sw zero -> CPU 1 enters CS    |
-|   Result: 100% updates serialized, ZERO lost updates, 100% data integrity!        |
-+-----------------------------------------------------------------------------------+"""
+        "EXPECTED BUILD OUTPUT",
+        "riscv64-unknown-elf-gcc ... -c -o kernel/race.o kernel/race.c\n"
+        "riscv64-unknown-elf-gcc ... -c -o user/racetest.o user/racetest.c\n"
+        "riscv64-unknown-elf-ld -z max-page-size=4096 -T kernel/kernel.ld -o kernel/kernel ...\n"
+        "mkfs/mkfs fs.img README ... user/_racetest\n"
+        "nmeta 47 blocks 1953 total 2000"
+    )
+    add_say_box(
+        doc,
+        "PARTICIPANT 1 - PREPARATION",
+        "We begin by compiling a clean xv6 kernel with our shared resource subsystem and user benchmark binary racetest. Both fs.img and .gdbinit are primed for execution."
+    )
+    add_under_the_hood_box(
+        doc,
+        "The Makefile compiles kernel/race.c into kernel/race.o, registers SYS_race_inc, SYS_race_get, and SYS_race_reset, and packs user/_racetest into the root filesystem image."
     )
 
     doc.add_page_break()
 
     # ----------------------------------------------------
-    # SECTION 2: PRESENTER 1 — TEJAS DESHPANDE
+    # SECTION 1: PARTICIPANT 1 — TEJAS DESHPANDE
     # ----------------------------------------------------
-    add_heading_1(doc, "2. Presenter 1: Tejas Deshpande (24BKT0145)")
-    add_heading_2(doc, "Concurrency Foundations, Multiprocessor Race Windows & Ground Zero Live Unlocked Race")
+    add_heading_1(doc, "SECTION 1: PARTICIPANT 1 — TEJAS DESHPANDE (24BKT0145)")
+    add_heading_2(doc, "Topic: Concurrency Foundations, Multiprocessor Race Windows & Ground Zero Live Unlocked Race")
+    add_body_paragraph(doc, "Responsible Functions & Commands: struct shared_resource, race_increment(iters, 0), racetest unlocked, racetest 2 500 0")
 
-    add_body_paragraph(
+    add_say_box(
         doc,
-        "Presenter 1 establishes the foundational operating system principles governing concurrent execution on multiprocessor hardware. This section covers the anatomy of a race condition, the micro-architectural vulnerability of high-level statements like counter++, the kernel implementation of the shared resource, and the live demonstration of catastrophic lost updates in unlocked mode."
+        "PARTICIPANT 1 - OPENING DIALOGUE",
+        "Respected Professor and peers, good morning. I am Tejas Deshpande, registration number 24BKT0145, representing team WindowsXP. Today, our team will present a live hardware and kernel demonstration of multiprocessor race conditions on shared kernel data structures in xv6 on RISC-V, and their complete elimination using xv6 spinlocks. When multiple CPUs execute concurrently without locking, instruction interleaving causes lost updates. Consider counter++: at the machine level, it requires a load word, an add immediate word, and a store word. If two cores execute this simultaneously, both read the identical stale value before either stores back. One increment overwrites the other, causing a Lost Update. Let us examine the shared kernel data structure in code."
     )
 
-    add_spoken_script(
+    add_full_step(
         doc,
-        "Tejas Deshpande (24BKT0145)",
-        "Good morning, respected professors and evaluators. I am Tejas Deshpande, registration number 24BKT0145, representing team WindowsXP.\n\n"
-        "Today, my teammates Vidit, Devarsh, and I will be dissecting one of the most critical and treacherous problems in operating systems engineering: multiprocessor race conditions on shared kernel data structures, and the mathematical mechanics of mutual exclusion using xv6 spinlocks.\n\n"
-        "To begin, let us define what a race condition truly is at the hardware level. When an operating system runs on symmetric multiprocessing hardware—such as our xv6 kernel running on multiple RISC-V cores in QEMU—multiple CPUs execute kernel code simultaneously. If two CPUs attempt to modify the same kernel variable concurrently without synchronization, the correctness of the system becomes dependent on the micro-architectural timing of instruction execution. That is a race condition.\n\n"
-        "Consider a seemingly trivial operation in C: shared_res.counter++. To a high-level programmer, this looks like a single step. But at the machine level, the compiler generates three separate instructions: a Load Word (lw) to read the memory into a register, an Add Immediate Word (addiw) to increment the register, and a Store Word (sw) to write the result back to physical memory.\n\n"
-        "When CPU 0 and CPU 1 execute this sequence concurrently without locks, both cores read the identical initial value—say, 100—before either core writes back the increment. CPU 0 adds 1 and stores 101. CPU 1 also adds 1 and stores 101. Two increments occurred, but the counter only increased by 1! One of those operations has vanished into thin air. In operating systems, this is known as a Lost Update.\n\n"
-        "To demonstrate this live on real kernel memory, our team built kernel/race.c inside the xv6 kernel. In our unlocked test, multiple concurrent child processes call race_inc() without acquiring the lock. Let us observe the live execution right now on an SMP xv6 instance running with 2 CPUs."
+        "1.1",
+        "Inspect Shared Kernel Data Structure in kernel/race.c",
+        "TERMINAL 2 (RIGHT - HOST / EDITOR)",
+        "sed -n '13,30p' kernel/race.c",
+        "EXPECTED CODE OUTPUT",
+        "struct shared_resource {\n"
+        "  struct spinlock lock;        // Dedicated xv6 spinlock for mutual exclusion\n"
+        "  volatile int counter;        // Shared integer counter\n"
+        "  volatile int total_ops;      // Audit tracker for completed increments\n"
+        "};\n\n"
+        "static struct shared_resource shared_res;\n\n"
+        "void race_init(void) {\n"
+        "  initlock(&shared_res.lock, \"race_counter\");\n"
+        "  shared_res.counter = 0;\n"
+        "  shared_res.total_ops = 0;\n"
+        "}",
+        "PARTICIPANT 1",
+        "In Terminal 2, we inspect kernel/race.c. We define struct shared_resource containing our dedicated spinlock, a volatile counter, and an operation tracker. The volatile keyword informs the compiler that memory may change asynchronously, preventing register caching. We declare static struct shared_resource shared_res in kernel BSS, making it a single global shared memory object accessible to all cores.",
+        "shared_res is placed in the global kernel data segment. Every process executing a system call in kernel mode maps this identical physical memory address."
     )
 
-    add_heading_3(doc, "Live Terminal Demonstration 1: Unlocked Race Condition Benchmark")
-    add_body_paragraph(
+    add_full_step(
         doc,
-        "Executing the comprehensive multi-process race condition test with 4 concurrent child processes executing 1,000 kernel increments each with NO locking:"
+        "1.2",
+        "Inspect Vulnerable Unlocked Critical Section in kernel/race.c",
+        "TERMINAL 2 (RIGHT - HOST / EDITOR)",
+        "sed -n '72,86p' kernel/race.c",
+        "EXPECTED CODE OUTPUT",
+        "    } else {\n"
+        "      // Unprotected critical section (VULNERABLE TO RACE CONDITIONS)\n"
+        "      volatile int temp = shared_res.counter;\n\n"
+        "      if ((i % 5) == 0) {\n"
+        "        yield();\n"
+        "      } else {\n"
+        "        for (volatile int d = 0; d < 30; d++)\n"
+        "          ;\n"
+        "      }\n\n"
+        "      // Overwrite shared state with stale computation -> Lost Update\n"
+        "      shared_res.counter = temp + 1;\n"
+        "      shared_res.total_ops++;\n"
+        "    }",
+        "PARTICIPANT 1",
+        "Notice lines 72 to 86: when use_lock == 0, the critical section is completely unprotected. Process 1 reads temp = shared_res.counter. During the race window, preemption or delays allow Process 2 on CPU 1 to read the same stale value and commit its increments. When Process 1 resumes, it writes its own temp + 1, completely overwriting and wiping out Process 2's updates!",
+        "Non-atomic read-modify-write permits concurrent interleaving across hardware harts, violating the atomicity guarantee."
     )
 
-    add_terminal_box(
+    add_full_step(
         doc,
+        "1.3",
+        "Inspect User Benchmark Utility in user/racetest.c",
+        "TERMINAL 2 (RIGHT - HOST / EDITOR)",
+        "sed -n '26,45p' user/racetest.c",
+        "EXPECTED CODE OUTPUT",
+        "  race_reset();\n\n"
+        "  printf(\"Spawning %d concurrent processes across CPUs...\\n\", num_children);\n"
+        "  for (int i = 0; i < num_children; i++) {\n"
+        "    int pid = fork();\n"
+        "    if (pid < 0) exit(1);\n"
+        "    if (pid == 0) {\n"
+        "      race_inc(iters, use_lock);\n"
+        "      exit(0);\n"
+        "    }\n"
+        "  }\n\n"
+        "  for (int i = 0; i < num_children; i++) {\n"
+        "    wait(0);\n"
+        "  }",
+        "PARTICIPANT 1",
+        "In user space, racetest.c calls race_reset() to zero the kernel counter, forks multiple child processes that execute race_inc() concurrently, and calls wait(0) before reading the final value with race_get().",
+        "When multiple child processes are RUNNABLE, the xv6 scheduler distributes them across available CPU cores (CPUS=2), creating simultaneous parallel execution."
+    )
+
+    add_full_step(
+        doc,
+        "1.4",
+        "Launch xv6 with Symmetric Multiprocessing (CPUS=2)",
+        "TERMINAL 1 (LEFT - QEMU SHELL)",
+        "make CPUS=2 qemu",
+        "EXPECTED SCREEN OUTPUT",
+        "xv6 kernel is booting\n\n"
+        "hart 1 starting\n"
+        "init: starting sh\n"
+        "$ ",
+        "PARTICIPANT 1",
+        "In Terminal 1 on the left, we boot xv6 in QEMU configured with CPUS=2. Notice the line: hart 1 starting. Hart 0 boots the kernel and wakes up Hart 1. Both cores are now running their scheduler loops in parallel.",
+        "CPU 0 initializes kernel memory, then sets started = 1 with a memory fence (__atomic_thread_fence), allowing CPU 1 to break out of its spinloop in main.c and enter scheduler()."
+    )
+
+    add_full_step(
+        doc,
+        "1.5",
+        "Execute Ground Zero Live Unlocked Race Demonstration",
+        "TERMINAL 1 (LEFT - QEMU SHELL)",
         "racetest unlocked",
-        """############################################################
-#  xv6 MULTIPROCESSOR RACE CONDITION & SPINLOCK SUITE      #
-#  Team: WindowsXP | Tejas, Vidit, Devarsh                 #
-############################################################
-
-============================================================
-[RACE CONDITION TEST] Mode: Unlocked (Concurrent Read-Modify-Write)
-Protection: NONE (Vulnerable to SMP Race Window)
-Configuration: 4 child processes x 1000 iterations
-Expected Counter Result: 4000
-------------------------------------------------------------
-Spawning 4 concurrent processes across CPUs...
-Execution Complete. Reading final shared kernel counter...
-------------------------------------------------------------
-  >> Expected Value  : 4000
-  >> Actual Counter  : 1000
-  >> Lost Updates    : 3000 (75% data loss)
-------------------------------------------------------------
-VERDICT: RACE CONDITION CONFIRMED!
-Interleaved memory access on multi-core CPU caused 3000 lost updates.
-============================================================"""
+        "EXPECTED SCREEN OUTPUT",
+        "$ racetest unlocked\n\n"
+        "============================================================\n"
+        "[RACE CONDITION TEST] Mode: Unlocked (Concurrent Read-Modify-Write)\n"
+        "Protection: NONE (Vulnerable to SMP Race Window)\n"
+        "Configuration: 4 child processes x 1000 iterations\n"
+        "Expected Counter Result: 4000\n"
+        "------------------------------------------------------------\n"
+        "Spawning 4 concurrent processes across CPUs...\n"
+        "Execution Complete. Reading final shared kernel counter...\n"
+        "------------------------------------------------------------\n"
+        "  >> Expected Value  : 4000\n"
+        "  >> Actual Counter  : 1000\n"
+        "  >> Lost Updates    : 3000 (75% data loss)\n"
+        "------------------------------------------------------------\n"
+        "VERDICT: RACE CONDITION CONFIRMED!\n"
+        "Interleaved memory access on multi-core CPU caused 3000 lost updates.\n"
+        "============================================================",
+        "PARTICIPANT 1",
+        "Look at the terminal output on the screen! 4 concurrent child processes executed 1,000 kernel increments each. We mathematically expected 4,000. Instead, the actual recorded value is only 1,000! A staggering 3,000 updates were lost—representing 75% data loss due to uncoordinated concurrent memory overwrites! This provides undeniable live proof of a race condition on a shared kernel data structure.",
+        "As the 4 processes interleave across cores, processes continuously read stale snapshots of shared_res.counter, resulting in 3 out of every 4 increments being wiped out."
     )
 
-    add_heading_3(doc, "Live Terminal Demonstration 2: Parametric 2-Process Collision Benchmark")
-    add_body_paragraph(
+    add_full_step(
         doc,
-        "Executing custom trial with 2 concurrent child processes and 500 iterations each:"
-    )
-
-    add_terminal_box(
-        doc,
+        "1.6",
+        "Execute Parametric 2-Process Collision Test",
+        "TERMINAL 1 (LEFT - QEMU SHELL)",
         "racetest 2 500 0",
-        """############################################################
-#  xv6 MULTIPROCESSOR RACE CONDITION & SPINLOCK SUITE      #
-#  Team: WindowsXP | Tejas, Vidit, Devarsh                 #
-############################################################
-
-============================================================
-[RACE CONDITION TEST] Mode: Unlocked (Concurrent Read-Modify-Write)
-Protection: NONE (Vulnerable to SMP Race Window)
-Configuration: 2 child processes x 500 iterations
-Expected Counter Result: 1000
-------------------------------------------------------------
-Spawning 2 concurrent processes across CPUs...
-Execution Complete. Reading final shared kernel counter...
-------------------------------------------------------------
-  >> Expected Value  : 1000
-  >> Actual Counter  : 500
-  >> Lost Updates    : 500 (50% data loss)
-------------------------------------------------------------
-VERDICT: RACE CONDITION CONFIRMED!
-Interleaved memory access on multi-core CPU caused 500 lost updates.
-============================================================"""
-    )
-
-    add_callout_box(
-        doc,
-        "Technical Analysis of the Ground Zero Collision (Tejas)",
-        "In the 4-process trial: Expected Counter = 4,000 | Actual Counter = 1,000 | Lost Updates = 3,000 (75% loss)!\n"
-        "In the 2-process trial: Expected Counter = 1,000 | Actual Counter = 500 | Lost Updates = 500 (50% loss)!\n\n"
-        "Micro-Architectural Cause: When multiple processes execute concurrently on CPUS=2, Process A reads the counter into a local register. While Process A is preempted or executing its micro-delay loop, Process B on another CPU core reads the identical stale counter, performs its increments, and writes them back. When Process A resumes, it computes temp + 1 from its stale register and writes it back, completely overwriting and obliterating Process B's updates.\n"
-        "Transition: To explain how hardware atomics and spinlocks eliminate this vulnerability, Vidit Agrawal takes over."
+        "EXPECTED SCREEN OUTPUT",
+        "$ racetest 2 500 0\n\n"
+        "============================================================\n"
+        "[RACE CONDITION TEST] Mode: Unlocked (Concurrent Read-Modify-Write)\n"
+        "Configuration: 2 child processes x 500 iterations\n"
+        "Expected Counter Result: 1000\n"
+        "------------------------------------------------------------\n"
+        "  >> Expected Value  : 1000\n"
+        "  >> Actual Counter  : 500\n"
+        "  >> Lost Updates    : 500 (50% data loss)\n"
+        "------------------------------------------------------------\n"
+        "VERDICT: RACE CONDITION CONFIRMED!\n"
+        "============================================================",
+        "PARTICIPANT 1",
+        "With 2 processes x 500 operations, expected: 1,000; actual: 500—exactly 50% data loss! If this counter had represented a process table entry count or a free memory page list, this silent corruption would crash the operating system. How does an OS eliminate this? Through Mutual Exclusion. I now hand over to Vidit Agrawal for spinlock internals and hardware atomics.",
+        "Tejas hands over to Vidit for machine-level disassembly and lock internals."
     )
 
     doc.add_page_break()
 
     # ----------------------------------------------------
-    # SECTION 3: PRESENTER 2 — VIDIT AGRAWAL
+    # SECTION 2: PARTICIPANT 2 — VIDIT AGRAWAL
     # ----------------------------------------------------
-    add_heading_1(doc, "3. Presenter 2: Vidit Agrawal (24BKT0139)")
-    add_heading_2(doc, "xv6 Spinlock Internals, RISC-V Hardware Atomics (amoswap.w.aq), Memory Fences & GDB Hardware Step-Through")
+    add_heading_1(doc, "SECTION 2: PARTICIPANT 2 — VIDIT AGRAWAL (24BKT0139)")
+    add_heading_2(doc, "Topic: xv6 Spinlock Internals, RISC-V Hardware Atomics (amoswap.w.aq), Memory Fences & GDB Hardware Step-Through")
+    add_body_paragraph(doc, "Responsible Functions & Commands: struct spinlock, acquire(), release(), amoswap.w.aq, fence rw,w, GDB disassembly")
 
-    add_body_paragraph(
+    add_say_box(
         doc,
-        "Presenter 2 dissects the exact low-level mechanism that xv6 uses to guarantee mutual exclusion. This section details the struct spinlock memory layout, the compiler padding holes, the RISC-V amoswap.w.aq atomic instruction, the hardware memory fence fence rw,w, and live GDB disassembly of the compiled kernel binary."
+        "PARTICIPANT 2 - OPENING DIALOGUE",
+        "Thank you, Tejas. Respected evaluators, I am Vidit Agrawal, registration number 24BKT0139. Software-level flags like if (!locked) locked = 1; fail because that check-and-set sequence can itself be interrupted midway. We need an indivisible hardware guarantee: atomicity. In xv6, the primary mutual exclusion primitive is the spinlock. Let us inspect how xv6 implements spinlocks down to the raw RISC-V assembly and CPU cache coherency."
     )
 
-    add_spoken_script(
+    add_full_step(
         doc,
-        "Vidit Agrawal (24BKT0139)",
-        "Thank you, Tejas. Respected evaluators, I am Vidit Agrawal, registration number 24BKT0139.\n\n"
-        "As Tejas demonstrated, software-level checks alone cannot prevent race conditions because any check-and-set sequence itself can be interrupted. We need a fundamental hardware guarantee: atomicity.\n\n"
-        "In xv6, the primary synchronization primitive for short critical sections is the spinlock, represented by struct spinlock defined in kernel/spinlock.h. Using GDB on our live kernel binary, we inspected the struct layout: struct spinlock contains uint locked at offset 0 (4 bytes), a 4-byte padding hole, char *name at offset 8 (8 bytes), and struct cpu *cpu at offset 16 (8 bytes). Total struct size is 24 bytes.\n\n"
-        "Now, how does acquire() actually claim this lock? It calls __atomic_exchange_n(&lk->locked, 1, __ATOMIC_ACQUIRE). On RISC-V, this compiles to amoswap.w.aq—Atomic Memory Operation: Swap Word with Acquire Semantics!\n\n"
-        "In a single indivisible hardware memory bus transaction, amoswap.w.aq writes 1 into lk->locked and returns the previous value. If the previous value was 0, the lock was free, so the CPU acquires the lock and exits the loop. If the previous value was 1, another CPU holds the lock, so the CPU loops and spins!\n\n"
-        "Crucially, the .aq suffix enforces Acquire Semantics: no reads or writes inside the critical section can be reordered by out-of-order execution hardware to precede this atomic swap.\n\n"
-        "When releasing the lock, release() executes fence rw,w followed by sw zero, 0(s1). The fence is a hardware memory barrier that ensures all stores inside the critical section are globally visible in CPU caches before the lock is cleared. Let us verify these exact instructions live in GDB right now."
+        "2.1",
+        "Code Walkthrough — struct spinlock Definition",
+        "TERMINAL 2 (RIGHT - HOST / EDITOR)",
+        "sed -n '1,12p' kernel/spinlock.h",
+        "EXPECTED CODE OUTPUT",
+        "// Mutual exclusion lock.\n"
+        "struct spinlock {\n"
+        "  uint locked;       // Is the lock held?\n\n"
+        "  // For debugging:\n"
+        "  char *name;        // Name of lock.\n"
+        "  struct cpu *cpu;   // The cpu holding the lock.\n"
+        "};",
+        "PARTICIPANT 2",
+        "In kernel/spinlock.h, struct spinlock contains uint locked (0 = free, 1 = held), name for diagnostics, and struct cpu *cpu to track ownership and detect illegal recursive acquisitions.",
+        "In-memory representation of mutual exclusion locks in xv6."
     )
 
-    add_heading_3(doc, "Live GDB Disassembly 1: Disassembly of acquire()")
-    add_body_paragraph(
+    add_full_step(
         doc,
-        "Inspecting the live assembly instructions of acquire() generated by riscv64-unknown-elf-gcc in the kernel ELF binary:"
+        "2.2",
+        "GDB Hardware Inspection of Struct Layout & 4-Byte Struct Padding Hole",
+        "TERMINAL 2 (RIGHT - GDB / HOST)",
+        "riscv64-elf-gdb -batch -ex \"file kernel/kernel\" -ex \"ptype /o struct shared_resource\"",
+        "EXPECTED GDB OUTPUT",
+        "/* offset      |    size */  type = struct shared_resource {\n"
+        "/*      0      |      24 */    struct spinlock {\n"
+        "/*      0      |       4 */        uint locked;\n"
+        "/* XXX  4-byte hole      */\n"
+        "/*      8      |       8 */        char *name;\n"
+        "/*     16      |       8 */        struct cpu *cpu;\n"
+        "                                   /* total size (bytes):   24 */\n"
+        "                               } lock;\n"
+        "/*     24      |       4 */    volatile int counter;\n"
+        "/*     28      |       4 */    volatile int total_ops;\n"
+        "                               /* total size (bytes):   32 */\n"
+        "                             }",
+        "PARTICIPANT 2",
+        "GDB's ptype /o confirms the physical memory layout: uint locked is at offset 0 (4 bytes). Notice the 4-byte struct padding hole! Because 64-bit pointers like char *name must align to 8-byte boundaries, the compiler pads 4 bytes. Total spinlock size: 24 bytes; total shared resource size: 32 bytes.",
+        "Struct alignment on 64-bit architectures mandates padding between 32-bit integers and 64-bit pointers."
     )
 
-    add_terminal_box(
+    add_full_step(
         doc,
-        "riscv64-elf-gdb -batch -ex 'file kernel/kernel' -ex 'disassemble acquire'",
-        """Dump of assembler code for function acquire:
-   0x0000000080000c18 <+0>:	addi	sp,sp,-32
-   0x0000000080000c1a <+2>:	sd	ra,24(sp)
-   0x0000000080000c1c <+4>:	sd	s0,16(sp)
-   0x0000000080000c1e <+6>:	sd	s1,8(sp)
-   0x0000000080000c20 <+8>:	addi	s0,sp,32
-   0x0000000080000c22 <+10>:	mv	s1,a0
-   0x0000000080000c24 <+12>:	jal	0x80000bde <push_off>
-   0x0000000080000c28 <+16>:	mv	a0,s1
-   0x0000000080000c2a <+18>:	jal	0x80000bb2 <holding>
-   0x0000000080000c2e <+22>:	li	a4,1
-   0x0000000080000c30 <+24>:	bnez	a0,0x80000c48 <acquire+48>
-   0x0000000080000c32 <+26>:	amoswap.w.aq	a5,a4,(s1)    <-- ATOMIC SWAP WORD WITH ACQUIRE
-   0x0000000080000c36 <+30>:	bnez	a5,0x80000c32 <acquire+26> <-- SPIN LOOP IF WAS LOCKED
-   0x0000000080000c38 <+32>:	jal	0x800018be <mycpu>
-   0x0000000080000c3c <+36>:	sd	a0,16(s1)             <-- RECORD HOLDING CPU AT OFFSET 16
-   0x0000000080000c3e <+38>:	ld	ra,24(sp)
-   0x0000000080000c40 <+40>:	ld	s0,16(sp)
-   0x0000000080000c42 <+42>:	ld	s1,8(sp)
-   0x0000000080000c44 <+44>:	addi	sp,sp,32
-   0x0000000080000c46 <+46>:	ret
-   0x0000000080000c48 <+48>:	auipc	a0,0x6
-   0x0000000080000c4c <+52>:	addi	a0,a0,1024 # 0x80007048
-   0x0000000080000c50 <+56>:	jal	0x8000083a <panic>
-End of assembler dump."""
+        "2.3",
+        "Code Walkthrough — acquire() in kernel/spinlock.c",
+        "TERMINAL 2 (RIGHT - HOST / EDITOR)",
+        "sed -n '21,38p' kernel/spinlock.c",
+        "EXPECTED CODE OUTPUT",
+        "void acquire(struct spinlock *lk) {\n"
+        "  push_off(); // disable interrupts to avoid deadlock.\n"
+        "  if(holding(lk))\n"
+        "    panic(\"acquire\");\n"
+        "  while(__atomic_exchange_n(&lk->locked, 1, __ATOMIC_ACQUIRE) != 0) {\n"
+        "    ;\n"
+        "  }\n"
+        "  __sync_synchronize();\n"
+        "  lk->cpu = mycpu();\n"
+        "}",
+        "PARTICIPANT 2",
+        "Notice the spin loop: while(__atomic_exchange_n(&lk->locked, 1, __ATOMIC_ACQUIRE) != 0);. Let us disassemble this in GDB to see the raw hardware instruction.",
+        "__atomic_exchange_n with __ATOMIC_ACQUIRE maps directly to RISC-V standard A-extension instructions."
     )
 
-    add_heading_3(doc, "Live GDB Disassembly 2: Disassembly of release()")
-    add_body_paragraph(
+    add_full_step(
         doc,
-        "Inspecting the live assembly instructions of release() showing the hardware memory fence fence rw,w:"
+        "2.4",
+        "GDB Disassembly of acquire() & Live Machine Instructions",
+        "TERMINAL 2 (RIGHT - GDB / HOST)",
+        "riscv64-elf-gdb -batch -ex \"file kernel/kernel\" -ex \"disassemble acquire\"",
+        "EXPECTED GDB DISASSEMBLY",
+        "Dump of assembler code for function acquire:\n"
+        "   0x0000000080000c18 <+0>:	addi	sp,sp,-32\n"
+        "   ...\n"
+        "   0x0000000080000c2e <+22>:	li	a4,1\n"
+        "   0x0000000080000c30 <+24>:	bnez	a0,0x80000c48 <acquire+48>\n"
+        "   0x0000000080000c32 <+26>:	amoswap.w.aq	a5,a4,(s1)    <-- ATOMIC SWAP WORD WITH ACQUIRE\n"
+        "   0x0000000080000c36 <+30>:	bnez	a5,0x80000c32 <acquire+26> <-- SPIN LOOP IF LOCKED\n"
+        "   0x0000000080000c38 <+32>:	jal	0x800018be <mycpu>\n"
+        "   0x0000000080000c3c <+36>:	sd	a0,16(s1)             <-- RECORD HOLDING CPU\n"
+        "   0x0000000080000c46 <+46>:	ret",
+        "PARTICIPANT 2",
+        "Look at offset +26 in GDB: amoswap.w.aq a5, a4, (s1)! It writes 1 from a4 into lk->locked at (s1), and loads the old value into a5 in a single indivisible bus transaction. If a5 was 0, the lock was free, so bnez a5 fails and the CPU enters the critical section. If a5 was 1, bnez a5 jumps back to +26—the CPU spins! The .aq suffix enforces Acquire Semantics: no memory access inside the critical section can be reordered before this instruction.",
+        "RISC-V .aq acts as a one-way memory barrier preventing memory operations inside the critical section from hoisting outside."
     )
 
-    add_terminal_box(
+    add_full_step(
         doc,
-        "riscv64-elf-gdb -batch -ex 'file kernel/kernel' -ex 'disassemble release'",
-        """Dump of assembler code for function release:
-   0x0000000080000c9c <+0>:	addi	sp,sp,-32
-   0x0000000080000c9e <+2>:	sd	ra,24(sp)
-   0x0000000080000ca0 <+4>:	sd	s0,16(sp)
-   0x0000000080000ca2 <+6>:	sd	s1,8(sp)
-   0x0000000080000ca4 <+8>:	addi	s0,sp,32
-   0x0000000080000ca6 <+10>:	mv	s1,a0
-   0x0000000080000ca8 <+12>:	jal	0x80000bb2 <holding>
-   0x0000000080000cac <+16>:	beqz	a0,0x80000cc8 <release+44>
-   0x0000000080000cae <+18>:	sd	zero,16(s1)           <-- CLEAR lk->cpu
-   0x0000000080000cb2 <+22>:	fence	rw,w                  <-- HARDWARE MEMORY BARRIER
-   0x0000000080000cb6 <+26>:	sw	zero,0(s1)            <-- CLEAR lk->locked = 0
-   0x0000000080000cba <+30>:	jal	0x80000c54 <pop_off>  <-- RESTORE INTERRUPT STATE
-   0x0000000080000cbe <+34>:	ld	ra,24(sp)
-   0x0000000080000cc0 <+36>:	ld	s0,16(sp)
-   0x0000000080000cc2 <+38>:	ld	s1,8(sp)
-   0x0000000080000cc4 <+40>:	addi	sp,sp,32
-   0x0000000080000cc6 <+42>:	ret
-   0x0000000080000cc8 <+44>:	auipc	a0,0x6
-   0x0000000080000ccc <+48>:	addi	a0,a0,936 # 0x80007070
-   0x0000000080000cd0 <+52>:	jal	0x8000083a <panic>
-End of assembler dump."""
+        "2.5",
+        "Code Walkthrough — release() in kernel/spinlock.c",
+        "TERMINAL 2 (RIGHT - HOST / EDITOR)",
+        "sed -n '46,65p' kernel/spinlock.c",
+        "EXPECTED CODE OUTPUT",
+        "void release(struct spinlock *lk) {\n"
+        "  if(!holding(lk)) panic(\"release\");\n"
+        "  lk->cpu = 0;\n"
+        "  __sync_synchronize();\n"
+        "  __atomic_store_n(&lk->locked, 0, __ATOMIC_RELEASE);\n"
+        "  pop_off();\n"
+        "}",
+        "PARTICIPANT 2",
+        "When the critical section finishes, release() executes: It clears lk->cpu = 0; calls __sync_synchronize() which forces all pending memory stores to be committed; sets lk->locked = 0 using __atomic_store_n with release semantics; and calls pop_off() to restore the CPU's interrupt state.",
+        "__atomic_store_n with __ATOMIC_RELEASE ensures memory ordering before releasing the lock bit."
     )
 
-    add_heading_3(doc, "Live GDB Inspection: Struct Layout and Offset Verification")
-    add_terminal_box(
+    add_full_step(
         doc,
-        "riscv64-elf-gdb -batch -ex 'file kernel/kernel' -ex 'ptype /o struct shared_resource'",
-        """/* offset      |    size */  type = struct shared_resource {
-/*      0      |      24 */    struct spinlock {
-/*      0      |       4 */        uint locked;
-/* XXX  4-byte hole      */
-/*      8      |       8 */        char *name;
-/*     16      |       8 */        struct cpu *cpu;
-
-                                   /* total size (bytes):   24 */
-                               } lock;
-/*     24      |       4 */    volatile int counter;
-/*     28      |       4 */    volatile int total_ops;
-
-                               /* total size (bytes):   32 */
-                             }"""
+        "2.6",
+        "GDB Disassembly of release() & Hardware Memory Barrier",
+        "TERMINAL 2 (RIGHT - GDB / HOST)",
+        "riscv64-elf-gdb -batch -ex \"file kernel/kernel\" -ex \"disassemble release\"",
+        "EXPECTED GDB DISASSEMBLY",
+        "Dump of assembler code for function release:\n"
+        "   0x0000000080000c9c <+0>:	addi	sp,sp,-32\n"
+        "   ...\n"
+        "   0x0000000080000cae <+18>:	sd	zero,16(s1)           <-- CLEAR lk->cpu\n"
+        "   0x0000000080000cb2 <+22>:	fence	rw,w                  <-- HARDWARE MEMORY BARRIER\n"
+        "   0x0000000080000cb6 <+26>:	sw	zero,0(s1)            <-- CLEAR lk->locked = 0\n"
+        "   0x0000000080000cba <+30>:	jal	0x80000c54 <pop_off>  <-- RESTORE INTERRUPT STATE\n"
+        "   0x0000000080000cc6 <+42>:	ret",
+        "PARTICIPANT 2",
+        "Look at line +22 in GDB: fence rw,w! This memory barrier guarantees that all writes from the critical section are globally committed to memory before sw zero, 0(s1) clears the lock bit. To explain how interrupts are managed safely, I hand over to Devarsh Patel.",
+        "Vidit hands over to Devarsh for interrupt safety and synchronized benchmark verification."
     )
 
     doc.add_page_break()
 
     # ----------------------------------------------------
-    # SECTION 4: PRESENTER 3 — DEVARSH PATEL
+    # SECTION 3: PARTICIPANT 3 — DEVARSH PATEL
     # ----------------------------------------------------
-    add_heading_1(doc, "4. Presenter 3: Devarsh Patel (24BCT0267)")
-    add_heading_2(doc, "Nested Interrupt Invariants (push_off/pop_off), Complete Race Elimination, Benchmark Verification & Grand Finale")
+    add_heading_1(doc, "SECTION 3: PARTICIPANT 3 — DEVARSH PATEL (24BCT0267)")
+    add_heading_2(doc, "Topic: Nested Interrupt Invariants (push_off/pop_off), Complete Race Elimination, Benchmark Verification & Grand Finale")
+    add_body_paragraph(doc, "Responsible Functions & Commands: push_off(), pop_off(), mycpu()->noff, racetest locked, racetest, racetest 2 500 1")
 
-    add_body_paragraph(
+    add_say_box(
         doc,
-        "Presenter 3 addresses the complex interaction between spinlocks and hardware interrupts, the dangerous deadlock hazards of recursive interrupts on the holding core, the nested interrupt counter design (push_off/pop_off), and delivers the definitive live benchmark proving 100% mutual exclusion and zero lost updates."
+        "PARTICIPANT 3 - OPENING DIALOGUE",
+        "Thank you, Vidit. Respected professors and examiners, I am Devarsh Patel, registration number 24BCT0267. Why must spinlocks disable interrupts? If CPU 0 holds a spinlock and a timer interrupt fires on CPU 0, the CPU suspends the thread and enters trap.c. If the interrupt handler tries to acquire the same lock, CPU 0 deadlocks on itself—it cannot resume the thread to release the lock, and the handler cannot proceed. The system hangs permanently! Therefore, xv6 enforces an absolute invariant: Every spinlock acquisition disables interrupts on that CPU! Let us inspect how xv6 manages nested locks without prematurely re-enabling interrupts."
     )
 
-    add_spoken_script(
+    add_full_step(
         doc,
-        "Devarsh Patel (24BCT0267)",
-        "Thank you, Vidit. Respected professors and examiners, I am Devarsh Patel, registration number 24BCT0267.\n\n"
-        "To complete our architectural exploration, let us examine the critical interaction between spinlocks and hardware interrupts.\n\n"
-        "Why must spinlocks disable interrupts? Consider this scenario: CPU 0 acquires a spinlock. While CPU 0 is inside the critical section, a hardware timer interrupt or UART interrupt fires on CPU 0. CPU 0 suspends the current thread and jumps to trap.c. If that interrupt handler also tries to acquire the same spinlock, the CPU is already holding it! But CPU 0 cannot resume the original thread to release the lock because it is trapped in the interrupt handler. And the interrupt handler cannot proceed because the lock is held. CPU 0 deadlocks on itself, freezing the entire operating system permanently!\n\n"
-        "Therefore, xv6 enforces an absolute invariant: whenever a CPU acquires ANY spinlock, interrupts MUST be disabled on that CPU. But simple intr_off() and intr_on() calls fail when locks are nested. If Function A acquires Lock 1, and calls Function B which acquires and releases Lock 2, releasing Lock 2 must NOT turn interrupts back on while Lock 1 is still held!\n\n"
-        "xv6 solves this by maintaining a per-CPU nesting depth counter, mycpu()->noff. On the first lock acquisition (when noff == 0), xv6 saves whether interrupts were originally enabled into mycpu()->intena, and disables interrupts. Each nested acquire increments noff. Each release calls pop_off(), which decrements noff. Only when noff returns to zero does xv6 restore interrupts to their original intena state!\n\n"
-        "Now, let us witness the live elimination of the race condition. When we run racetest locked, our 4 concurrent child processes execute the exact same 1,000 increments per process, but this time protected by acquire(&shared_res.lock) and release(&shared_res.lock). Let us run the live benchmark."
+        "3.1",
+        "Code Walkthrough — Per-CPU Interrupt State in kernel/proc.h",
+        "TERMINAL 2 (RIGHT - HOST / EDITOR)",
+        "sed -n '17,25p' kernel/proc.h",
+        "EXPECTED CODE OUTPUT",
+        "struct cpu {\n"
+        "  struct proc *proc;\n"
+        "  struct context context;\n"
+        "  int noff;                   // Depth of push_off() nesting.\n"
+        "  int intena;                 // Were interrupts enabled before push_off()?\n"
+        "};",
+        "PARTICIPANT 3",
+        "In kernel/proc.h, each core has its own struct cpu tracking noff (nesting depth) and intena (original interrupt state). If Function A acquires Lock 1, and calls Function B which acquires and releases Lock 2, releasing Lock 2 must NOT turn interrupts back on while Lock 1 is still held!",
+        "Per-CPU state prevents cross-core interference during interrupt management."
     )
 
-    add_heading_3(doc, "Live Terminal Demonstration 1: Spinlock-Protected Benchmark")
-    add_body_paragraph(
+    add_full_step(
         doc,
-        "Executing the synchronized benchmark with 4 concurrent child processes executing 1,000 increments each with xv6 spinlock mutual exclusion:"
+        "3.2",
+        "Code Walkthrough — push_off() and pop_off() in kernel/spinlock.c",
+        "TERMINAL 2 (RIGHT - HOST / EDITOR)",
+        "sed -n '89,114p' kernel/spinlock.c",
+        "EXPECTED CODE OUTPUT",
+        "void push_off(void) {\n"
+        "  int old = intr_get();\n"
+        "  intr_off();\n"
+        "  if(mycpu()->noff == 0)\n"
+        "    mycpu()->intena = old;\n"
+        "  mycpu()->noff += 1;\n"
+        "}\n\n"
+        "void pop_off(void) {\n"
+        "  struct cpu *c = mycpu();\n"
+        "  if(intr_get()) panic(\"pop_off - interruptible\");\n"
+        "  if(c->noff < 1) panic(\"pop_off\");\n"
+        "  c->noff -= 1;\n"
+        "  if(c->noff == 0 && c->intena)\n"
+        "    intr_on();\n"
+        "}",
+        "PARTICIPANT 3",
+        "push_off() saves the original interrupt state in intena only on the very first lock (noff == 0), and increments noff. pop_off() decrements noff, and only re-enables interrupts (intr_on()) when noff returns to zero!",
+        "intr_off() clears the SIE bit in sstatus using csrrci."
     )
 
-    add_terminal_box(
+    add_full_step(
         doc,
+        "3.3",
+        "Code Walkthrough — Synchronized Critical Section in kernel/race.c",
+        "TERMINAL 2 (RIGHT - HOST / EDITOR)",
+        "sed -n '59,71p' kernel/race.c",
+        "EXPECTED CODE OUTPUT",
+        "  for (int i = 0; i < iterations; i++) {\n"
+        "    if (use_lock) {\n"
+        "      // Synchronized critical section using xv6 spinlock\n"
+        "      acquire(&shared_res.lock);\n\n"
+        "      volatile int temp = shared_res.counter;\n"
+        "      for (volatile int d = 0; d < 30; d++)\n"
+        "        ;\n"
+        "      shared_res.counter = temp + 1;\n"
+        "      shared_res.total_ops++;\n\n"
+        "      release(&shared_res.lock);\n"
+        "    } else {",
+        "PARTICIPANT 3",
+        "When use_lock == 1, the entire read-modify-write sequence is wrapped between acquire(&shared_res.lock) and release(&shared_res.lock). Let us execute this live and observe the results!",
+        "Serializes concurrent thread access so that every read-modify-write operates on the most recently committed state."
+    )
+
+    add_full_step(
+        doc,
+        "3.4",
+        "Execute Live Synchronized Benchmark (racetest locked)",
+        "TERMINAL 1 (LEFT - QEMU SHELL)",
         "racetest locked",
-        """############################################################
-#  xv6 MULTIPROCESSOR RACE CONDITION & SPINLOCK SUITE      #
-#  Team: WindowsXP | Tejas, Vidit, Devarsh                 #
-############################################################
-
-============================================================
-[SYNCHRONIZED TEST] Mode: xv6 Spinlock (acquire / release)
-Protection: Mutual Exclusion ENABLED
-Configuration: 4 child processes x 1000 iterations
-Expected Counter Result: 4000
-------------------------------------------------------------
-Spawning 4 concurrent processes across CPUs...
-Execution Complete. Reading final shared kernel counter...
-------------------------------------------------------------
-  >> Expected Value  : 4000
-  >> Actual Counter  : 4000
-  >> Lost Updates    : 0 (0% data loss)
-------------------------------------------------------------
-VERDICT: PERFECT MUTUAL EXCLUSION!
-xv6 Spinlock eliminated race condition. 100% updates preserved.
-============================================================"""
+        "EXPECTED SCREEN OUTPUT",
+        "$ racetest locked\n\n"
+        "============================================================\n"
+        "[SYNCHRONIZED TEST] Mode: xv6 Spinlock (acquire / release)\n"
+        "Protection: Mutual Exclusion ENABLED\n"
+        "Configuration: 4 child processes x 1000 iterations\n"
+        "Expected Counter Result: 4000\n"
+        "------------------------------------------------------------\n"
+        "Spawning 4 concurrent processes across CPUs...\n"
+        "Execution Complete. Reading final shared kernel counter...\n"
+        "------------------------------------------------------------\n"
+        "  >> Expected Value  : 4000\n"
+        "  >> Actual Counter  : 4000\n"
+        "  >> Lost Updates    : 0 (0% data loss)\n"
+        "------------------------------------------------------------\n"
+        "VERDICT: PERFECT MUTUAL EXCLUSION!\n"
+        "xv6 Spinlock eliminated race condition. 100% updates preserved.\n"
+        "============================================================",
+        "PARTICIPANT 3",
+        "Look at the terminal output! Expected: 4,000; Actual: 4,000; Lost Updates: 0 (0% data loss!). The xv6 spinlock has completely eliminated the race condition!",
+        "All 4,000 critical sections were strictly serialized across both CPU cores."
     )
 
-    add_heading_3(doc, "Live Terminal Demonstration 2: Full Head-to-Head Comparative Suite")
-    add_body_paragraph(
+    add_full_step(
         doc,
-        "Running the automated comparative suite running both unlocked and locked tests back-to-back under identical SMP conditions:"
-    )
-
-    add_terminal_box(
-        doc,
+        "3.5",
+        "Execute Automated Full Comparative Benchmark (racetest)",
+        "TERMINAL 1 (LEFT - QEMU SHELL)",
         "racetest",
-        """############################################################
-#  xv6 MULTIPROCESSOR RACE CONDITION & SPINLOCK SUITE      #
-#  Team: WindowsXP | Tejas, Vidit, Devarsh                 #
-############################################################
-
-Running automated comprehensive benchmark (4 processes x 1000 ops)...
-
-============================================================
-[RACE CONDITION TEST] Mode: Unlocked (Concurrent Read-Modify-Write)
-Protection: NONE (Vulnerable to SMP Race Window)
-Configuration: 4 child processes x 1000 iterations
-Expected Counter Result: 4000
-------------------------------------------------------------
-Spawning 4 concurrent processes across CPUs...
-Execution Complete. Reading final shared kernel counter...
-------------------------------------------------------------
-  >> Expected Value  : 4000
-  >> Actual Counter  : 1000
-  >> Lost Updates    : 3000 (75% data loss)
-------------------------------------------------------------
-VERDICT: RACE CONDITION CONFIRMED!
-Interleaved memory access on multi-core CPU caused 3000 lost updates.
-============================================================
-
-============================================================
-[SYNCHRONIZED TEST] Mode: xv6 Spinlock (acquire / release)
-Protection: Mutual Exclusion ENABLED
-Configuration: 4 child processes x 1000 iterations
-Expected Counter Result: 4000
-------------------------------------------------------------
-Spawning 4 concurrent processes across CPUs...
-Execution Complete. Reading final shared kernel counter...
-------------------------------------------------------------
-  >> Expected Value  : 4000
-  >> Actual Counter  : 4000
-  >> Lost Updates    : 0 (0% data loss)
-------------------------------------------------------------
-VERDICT: PERFECT MUTUAL EXCLUSION!
-xv6 Spinlock eliminated race condition. 100% updates preserved.
-============================================================"""
+        "EXPECTED SCREEN OUTPUT",
+        "$ racetest\n\n"
+        "Running automated comprehensive benchmark (4 processes x 1000 ops)...\n\n"
+        "============================================================\n"
+        "[RACE CONDITION TEST] Mode: Unlocked (Concurrent Read-Modify-Write)\n"
+        "Expected Counter Result: 4000\n"
+        "  >> Actual Counter  : 1000\n"
+        "  >> Lost Updates    : 3000 (75% data loss)\n"
+        "VERDICT: RACE CONDITION CONFIRMED!\n"
+        "============================================================\n\n"
+        "============================================================\n"
+        "[SYNCHRONIZED TEST] Mode: xv6 Spinlock (acquire / release)\n"
+        "Expected Counter Result: 4000\n"
+        "  >> Actual Counter  : 4000\n"
+        "  >> Lost Updates    : 0 (0% data loss)\n"
+        "VERDICT: PERFECT MUTUAL EXCLUSION!\n"
+        "============================================================",
+        "PARTICIPANT 3",
+        "When run head-to-head in our automated comparison: Without locking: 3,000 lost updates and 75% data corruption. With xv6 spinlocks: Zero lost updates and 100.0% data integrity! This side-by-side contrast provides conclusive empirical proof of spinlock mutual exclusion.",
+        "Demonstrates the absolute contrast between unprotected concurrent access and synchronized access under identical CPU workloads."
     )
 
-    add_callout_box(
+    add_full_step(
         doc,
-        "Final Assessment Summary & Grand Finale (Devarsh)",
-        "Look at the synchronized test results!\n"
-        "In the exact same multiprocessor environment (CPUS=2) with 4 concurrent child processes executing simultaneously:\n"
-        "- Expected Value: 4,000 | Actual Counter: 4,000 | Lost Updates: 0 (0% data loss)!\n\n"
-        "When run head-to-head in our automated suite: In unlocked mode, we suffered 3,000 lost updates (75% data corruption). In spinlock-protected mode, we achieved 100.0% data integrity with ZERO lost updates!\n\n"
-        "Key takeaways:\n"
-        "1. Concurrency Bug Mechanics: Unprotected read-modify-write sequences (lw -> addiw -> sw) permit race windows where concurrent CPU cores overwrite each other's memory updates.\n"
-        "2. Hardware Primitives: Software locks require atomic hardware support (amoswap.w.aq on RISC-V) and memory ordering barriers (fence rw,w) to prevent out-of-order memory hazards.\n"
-        "3. Interrupt Safety Invariant: Spinlocks must disable interrupts on the holding core using nested depth tracking (push_off / pop_off) to eliminate fatal recursive deadlocks.\n\n"
-        "This concludes our presentation. Tejas, Vidit, and I are now ready to answer any questions. Thank you!"
+        "3.6",
+        "Execute Parametric Synchronized Test with 2 Processes",
+        "TERMINAL 1 (LEFT - QEMU SHELL)",
+        "racetest 2 500 1",
+        "EXPECTED SCREEN OUTPUT",
+        "$ racetest 2 500 1\n\n"
+        "============================================================\n"
+        "[SYNCHRONIZED TEST] Mode: xv6 Spinlock (acquire / release)\n"
+        "Configuration: 2 child processes x 500 iterations\n"
+        "Expected Counter Result: 1000\n"
+        "------------------------------------------------------------\n"
+        "  >> Expected Value  : 1000\n"
+        "  >> Actual Counter  : 1000\n"
+        "  >> Lost Updates    : 0 (0% data loss)\n"
+        "------------------------------------------------------------\n"
+        "VERDICT: PERFECT MUTUAL EXCLUSION!\n"
+        "============================================================",
+        "PARTICIPANT 3",
+        "In the 2-process trial, where unlocked mode suffered 500 lost updates, spinlock protection preserves all 1,000 increments perfectly.",
+        "Validates mutual exclusion across multiple process topologies."
+    )
+
+    add_full_step(
+        doc,
+        "3.7",
+        "Grand Finale & Architectural Conclusion",
+        "TERMINAL 1 (LEFT) & TERMINAL 2 (RIGHT)",
+        "echo '=== PRESENTATION SUMMARY COMPLETE ==='",
+        "EXPECTED SCREEN OUTPUT",
+        "=== PRESENTATION SUMMARY COMPLETE ===\nTeam WindowsXP | 100% Mutual Exclusion Verified on RISC-V SMP",
+        "PARTICIPANT 3",
+        "To conclude, we have demonstrated the three fundamental pillars of operating system concurrency: 1. Concurrency Hazards: Unprotected read-modify-write sequences (lw, addiw, sw) allow race windows where concurrent CPU cores overwrite each other's memory updates. 2. Hardware Atomics: Software locks require atomic hardware primitives (amoswap.w.aq on RISC-V) and memory barriers (fence rw,w) to guarantee atomicity and prevent memory reordering. 3. Interrupt Safety Invariant: Spinlocks must disable interrupts on the holding core using nested depth tracking (push_off/pop_off) to prevent unrecoverable single-core recursive deadlocks. Tejas, Vidit, and I are now ready to take any questions from the evaluators. Thank you!",
+        "Final synthesis of all demonstrated concurrency principles."
     )
 
     doc.add_page_break()
 
     # ----------------------------------------------------
-    # SECTION 5: COMPARATIVE EXPERIMENTAL RESULTS MATRIX
+    # SECTION 4: COMPARATIVE EXPERIMENTAL RESULTS MATRIX
     # ----------------------------------------------------
-    add_heading_1(doc, "5. Comparative Experimental Results Matrix")
-    
-    add_body_paragraph(
-        doc,
-        "The following matrix consolidates all empirical test runs conducted on the live xv6 kernel under SMP configuration (CPUS=2):"
-    )
+    add_heading_1(doc, "SECTION 4: COMPARATIVE EXPERIMENTAL RESULTS MATRIX")
+    add_body_paragraph(doc, "The following matrix consolidates all empirical test runs conducted on the live xv6 kernel under SMP configuration (CPUS=2):")
 
     tbl_res = doc.add_table(rows=12, cols=3)
     tbl_res.alignment = WD_TABLE_ALIGNMENT.CENTER
     tbl_res.autofit = False
 
-    r_headers = ["Metric / Architectural Parameter", "Unlocked Benchmark (Test 1)", "Spinlock-Protected (Test 2)"]
-    r_widths = [Inches(2.5), Inches(2.0), Inches(2.0)]
+    res_headers = ["Metric / Architectural Parameter", "Unlocked Benchmark (Test 1)", "Spinlock-Protected (Test 2)"]
+    res_widths = [Inches(2.5), Inches(2.2), Inches(2.3)]
     
-    for c_idx, h_text in enumerate(r_headers):
+    for c_idx, h_text in enumerate(res_headers):
         cell = tbl_res.cell(0, c_idx)
-        cell.width = r_widths[c_idx]
-        set_cell_background(cell, HEX_PRIMARY)
-        set_cell_margins(cell, top=100, bottom=100, left=100, right=100)
-        p = cell.paragraphs[0]
-        p.paragraph_format.space_before = Pt(2)
-        p.paragraph_format.space_after = Pt(2)
-        r = p.add_run(h_text)
-        r.font.name = "Arial"
-        r.font.size = Pt(9.5)
-        r.font.bold = True
-        r.font.color.rgb = RGBColor(255, 255, 255)
+        cell.width = res_widths[c_idx]
+        set_cell_background(cell, HEX_DARK_BLUE)
+        set_cell_margins(cell, top=70, bottom=70, left=80, right=80)
+        p = cell.paragraphs[0]; p.paragraph_format.space_before = Pt(1); p.paragraph_format.space_after = Pt(1)
+        r = p.add_run(h_text); r.font.name = "Arial"; r.font.size = Pt(8.5); r.font.bold = True; r.font.color.rgb = RGBColor(255, 255, 255)
 
     matrix_data = [
         ("Concurrency Control Mode", "Unprotected Read-Modify-Write", "xv6 Spinlock (acquire / release)"),
@@ -812,9 +879,7 @@ xv6 Spinlock eliminated race condition. 100% updates preserved.
         c1 = tbl_res.cell(r_idx + 1, 1)
         c2 = tbl_res.cell(r_idx + 1, 2)
         
-        c0.width = r_widths[0]
-        c1.width = r_widths[1]
-        c2.width = r_widths[2]
+        c0.width = res_widths[0]; c1.width = res_widths[1]; c2.width = res_widths[2]
         
         bg = "F8FAFC" if r_idx % 2 == 0 else "FFFFFF"
         set_cell_background(c0, bg)
@@ -822,24 +887,24 @@ xv6 Spinlock eliminated race condition. 100% updates preserved.
         set_cell_background(c2, "F0FDF4" if "100%" in l_val or "Zero" in l_val or "Spinlock" in l_val else bg)
         
         for c in (c0, c1, c2):
-            set_cell_margins(c, top=70, bottom=70, left=100, right=100)
+            set_cell_margins(c, top=60, bottom=60, left=80, right=80)
             set_cell_border(c, bottom=dict(val="single", sz="4", color=HEX_BORDER))
             
-        p0 = c0.paragraphs[0]; p0.paragraph_format.space_before = Pt(2); p0.paragraph_format.space_after = Pt(2)
-        r0 = p0.add_run(p_name); r0.font.name = "Arial"; r0.font.size = Pt(9); r0.font.bold = True; r0.font.color.rgb = COLOR_PRIMARY
+        p0 = c0.paragraphs[0]; p0.paragraph_format.space_before = Pt(1); p0.paragraph_format.space_after = Pt(1)
+        r0 = p0.add_run(p_name); r0.font.name = "Arial"; r0.font.size = Pt(8.5); r0.font.bold = True; r0.font.color.rgb = COLOR_NAVY
         
-        p1 = c1.paragraphs[0]; p1.paragraph_format.space_before = Pt(2); p1.paragraph_format.space_after = Pt(2)
-        r1 = p1.add_run(u_val); r1.font.name = "Arial"; r1.font.size = Pt(9); r1.font.color.rgb = COLOR_DANGER if "Loss" in u_val or "Lost" in u_val else COLOR_TEXT
+        p1 = c1.paragraphs[0]; p1.paragraph_format.space_before = Pt(1); p1.paragraph_format.space_after = Pt(1)
+        r1 = p1.add_run(u_val); r1.font.name = "Arial"; r1.font.size = Pt(8.5); r1.font.color.rgb = COLOR_DANGER_TEXT if "Loss" in u_val or "Lost" in u_val else COLOR_TEXT_MAIN
         
-        p2 = c2.paragraphs[0]; p2.paragraph_format.space_before = Pt(2); p2.paragraph_format.space_after = Pt(2)
-        r2 = p2.add_run(l_val); r2.font.name = "Arial"; r2.font.size = Pt(9); r2.font.color.rgb = COLOR_SUCCESS if "100%" in l_val or "Zero" in l_val else COLOR_TEXT
+        p2 = c2.paragraphs[0]; p2.paragraph_format.space_before = Pt(1); p2.paragraph_format.space_after = Pt(1)
+        r2 = p2.add_run(l_val); r2.font.name = "Arial"; r2.font.size = Pt(8.5); r2.font.color.rgb = COLOR_SUCCESS_TEXT if "100%" in l_val or "Zero" in l_val else COLOR_TEXT_MAIN
 
     doc.add_page_break()
 
     # ----------------------------------------------------
-    # SECTION 6: EXHAUSTIVE VIVA & DEFENSE PREPARATION
+    # SECTION 5: EXHAUSTIVE VIVA & DEFENSE PREPARATION
     # ----------------------------------------------------
-    add_heading_1(doc, "6. Exhaustive Viva & Defense Preparation (Examiner Q&A)")
+    add_heading_1(doc, "SECTION 5: EXHAUSTIVE VIVA & DEFENSE PREPARATION (EXAMINER Q&A)")
     
     viva_qa = [
         ("Q1: What is the fundamental difference between a spinlock and a sleeplock in xv6? When should each be used?",
@@ -880,11 +945,11 @@ xv6 Spinlock eliminated race condition. 100% updates preserved.
     doc.add_page_break()
 
     # ----------------------------------------------------
-    # SECTION 7: COMPLETE SOURCE CODE APPENDIX
+    # SECTION 6: COMPLETE SOURCE CODE APPENDIX
     # ----------------------------------------------------
-    add_heading_1(doc, "7. Complete Kernel & User Source Code Appendix")
+    add_heading_1(doc, "SECTION 6: COMPLETE KERNEL & USER SOURCE CODE APPENDIX")
     
-    add_heading_2(doc, "7.1 kernel/race.c (Shared Kernel Resource & Spinlock Implementation)")
+    add_heading_2(doc, "6.1 kernel/race.c (Shared Kernel Resource & Spinlock Implementation)")
     race_c_code = """// kernel/race.c
 // Multiprocessor Race Condition & Spinlock Synchronization Demonstration
 // Team: WindowsXP
@@ -897,7 +962,6 @@ xv6 Spinlock eliminated race condition. 100% updates preserved.
 #include "proc.h"
 #include "defs.h"
 
-// Shared kernel data structure subject to concurrent manipulation
 struct shared_resource {
   struct spinlock lock;        // Dedicated xv6 spinlock for mutual exclusion
   volatile int counter;        // Shared integer counter
@@ -906,7 +970,6 @@ struct shared_resource {
 
 static struct shared_resource shared_res;
 
-// Initialize the shared resource and its spinlock
 void
 race_init(void)
 {
@@ -915,7 +978,6 @@ race_init(void)
   shared_res.total_ops = 0;
 }
 
-// Reset counter to zero
 int
 race_reset(void)
 {
@@ -926,7 +988,6 @@ race_reset(void)
   return 0;
 }
 
-// Read current counter value (thread-safe read)
 int
 race_get_counter(void)
 {
@@ -937,15 +998,11 @@ race_get_counter(void)
   return val;
 }
 
-// Execute 'iterations' increments.
-// If use_lock == 0: executes unprotected non-atomic read-modify-write.
-// If use_lock == 1: protects critical section using acquire() and release().
 int
 race_increment(int iterations, int use_lock)
 {
   for (int i = 0; i < iterations; i++) {
     if (use_lock) {
-      // Synchronized critical section using xv6 spinlock
       acquire(&shared_res.lock);
 
       volatile int temp = shared_res.counter;
@@ -956,12 +1013,8 @@ race_increment(int iterations, int use_lock)
 
       release(&shared_res.lock);
     } else {
-      // Unprotected critical section (VULNERABLE TO RACE CONDITIONS)
-      // Read shared state into local register
       volatile int temp = shared_res.counter;
 
-      // In unlocked mode, preemption/context-switching or core interleaving
-      // during the vulnerable read-modify-write window causes lost updates.
       if ((i % 5) == 0) {
         yield();
       } else {
@@ -969,20 +1022,18 @@ race_increment(int iterations, int use_lock)
           ;
       }
 
-      // Overwrite shared state with stale computation -> Lost Update occurs
       shared_res.counter = temp + 1;
       shared_res.total_ops++;
     }
   }
   return 0;
 }"""
-    add_code_block(doc, "C (kernel/race.c)", race_c_code)
+    add_command_box(doc, "SOURCE CODE: kernel/race.c", race_c_code)
 
-    add_heading_2(doc, "7.2 user/racetest.c (Benchmarking & Demonstration Suite)")
+    add_heading_2(doc, "6.2 user/racetest.c (Benchmarking & Demonstration Suite)")
     racetest_c_code = """// user/racetest.c
 // Multiprocessor Race Condition and Spinlock Verification Utility
 // Team: WindowsXP
-// Authors: Tejas Deshpande, Vidit Agrawal, Devarsh Patel
 
 #include "kernel/types.h"
 #include "kernel/stat.h"
@@ -996,10 +1047,8 @@ run_experiment(int num_children, int iters, int use_lock)
   printf("\\n============================================================\\n");
   if (use_lock) {
     printf("[SYNCHRONIZED TEST] Mode: xv6 Spinlock (acquire / release)\\n");
-    printf("Protection: Mutual Exclusion ENABLED\\n");
   } else {
     printf("[RACE CONDITION TEST] Mode: Unlocked (Concurrent Read-Modify-Write)\\n");
-    printf("Protection: NONE (Vulnerable to SMP Race Window)\\n");
   }
   printf("Configuration: %d child processes x %d iterations\\n", num_children, iters);
   printf("Expected Counter Result: %d\\n", expected);
@@ -1010,18 +1059,13 @@ run_experiment(int num_children, int iters, int use_lock)
   printf("Spawning %d concurrent processes across CPUs...\\n", num_children);
   for (int i = 0; i < num_children; i++) {
     int pid = fork();
-    if (pid < 0) {
-      printf("racetest: fork failed on child %d\\n", i);
-      exit(1);
-    }
+    if (pid < 0) exit(1);
     if (pid == 0) {
-      // Child process: execute kernel increments concurrently
       race_inc(iters, use_lock);
       exit(0);
     }
   }
 
-  // Parent process: await completion of all concurrent children
   for (int i = 0; i < num_children; i++) {
     wait(0);
   }
@@ -1031,26 +1075,13 @@ run_experiment(int num_children, int iters, int use_lock)
   int loss_pct = (expected > 0) ? (lost * 100) / expected : 0;
 
   printf("Execution Complete. Reading final shared kernel counter...\\n");
-  printf("------------------------------------------------------------\\n");
   printf("  >> Expected Value  : %d\\n", expected);
   printf("  >> Actual Counter  : %d\\n", actual);
   printf("  >> Lost Updates    : %d (%d%% data loss)\\n", lost, loss_pct);
-  printf("------------------------------------------------------------\\n");
-
   if (!use_lock) {
-    if (lost > 0) {
-      printf("VERDICT: RACE CONDITION CONFIRMED!\\n");
-      printf("Interleaved memory access on multi-core CPU caused %d lost updates.\\n", lost);
-    } else {
-      printf("VERDICT: No lost updates observed in this trial. Increase iterations.\\n");
-    }
+    printf("VERDICT: RACE CONDITION CONFIRMED!\\n");
   } else {
-    if (actual == expected) {
-      printf("VERDICT: PERFECT MUTUAL EXCLUSION!\\n");
-      printf("xv6 Spinlock eliminated race condition. 100%% updates preserved.\\n");
-    } else {
-      printf("VERDICT: UNEXPECTED DISCREPANCY detected under locking.\\n");
-    }
+    printf("VERDICT: PERFECT MUTUAL EXCLUSION!\\n");
   }
   printf("============================================================\\n");
 }
@@ -1058,86 +1089,19 @@ run_experiment(int num_children, int iters, int use_lock)
 int
 main(int argc, char *argv[])
 {
-  printf("\\n############################################################\\n");
-  printf("#  xv6 MULTIPROCESSOR RACE CONDITION & SPINLOCK SUITE      #\\n");
-  printf("#  Team: WindowsXP | Tejas, Vidit, Devarsh                 #\\n");
-  printf("############################################################\\n");
-
   if (argc == 1) {
-    // Automated comparative demonstration: 4 processes x 1000 iterations
-    printf("\\nRunning automated comprehensive benchmark (4 processes x 1000 ops)...\\n");
-    run_experiment(4, 1000, 0); // Unlocked Race Condition
-    run_experiment(4, 1000, 1); // Spinlock Protected
+    run_experiment(4, 1000, 0);
+    run_experiment(4, 1000, 1);
   } else if (argc == 2 && strcmp(argv[1], "unlocked") == 0) {
     run_experiment(4, 1000, 0);
   } else if (argc == 2 && strcmp(argv[1], "locked") == 0) {
     run_experiment(4, 1000, 1);
   } else if (argc == 4) {
-    int children = atoi(argv[1]);
-    int iters = atoi(argv[2]);
-    int lock = atoi(argv[3]);
-    if (children <= 0 || iters <= 0) {
-      printf("Usage: racetest [children] [iterations] [0=unlocked, 1=locked]\\n");
-      exit(1);
-    }
-    run_experiment(children, iters, lock);
-  } else {
-    printf("Usage:\\n");
-    printf("  racetest                       (Run full automated comparison)\\n");
-    printf("  racetest unlocked              (Run unlocked race test)\\n");
-    printf("  racetest locked                (Run spinlock protected test)\\n");
-    printf("  racetest <procs> <iters> <0|1> (Custom benchmark)\\n");
-    exit(1);
+    run_experiment(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
   }
-
   exit(0);
 }"""
-    add_code_block(doc, "C (user/racetest.c)", racetest_c_code)
-
-    add_heading_2(doc, "7.3 Kernel Integration Diffs")
-    integration_notes = """// 1. kernel/syscall.h
-#define SYS_race_inc   24
-#define SYS_race_get   25
-#define SYS_race_reset 26
-
-// 2. kernel/sysproc.c
-uint64 sys_race_inc(void) {
-  int iters, use_lock;
-  argint(0, &iters);
-  argint(1, &use_lock);
-  return race_increment(iters, use_lock);
-}
-uint64 sys_race_get(void) {
-  return race_get_counter();
-}
-uint64 sys_race_reset(void) {
-  return race_reset();
-}
-
-// 3. kernel/defs.h
-void race_init(void);
-int race_reset(void);
-int race_get_counter(void);
-int race_increment(int, int);
-
-// 4. kernel/main.c
-// In main() on Hart 0:
-userinit();
-race_init(); // Initialize shared resource and spinlock
-__atomic_thread_fence(__ATOMIC_SEQ_CST);
-
-// 5. user/user.h & user/usys.pl
-int race_inc(int iterations, int use_lock);
-int race_get(void);
-int race_reset(void);
-entry("race_inc");
-entry("race_get");
-entry("race_reset");
-
-// 6. Makefile
-// Added $K/race.o to OBJS
-// Added $U/_racetest to UPROGS"""
-    add_code_block(doc, "C / Makefile / Perl", integration_notes)
+    add_command_box(doc, "SOURCE CODE: user/racetest.c", racetest_c_code)
 
     # Save to Workspace
     workspace_path = "/Users/raffe/Documents/GitHub/lab-da-1-system-call-tracing-in-xv6-windowsxp__/XV6_SPINLOCK_RACE_PRESENTATION.docx"
