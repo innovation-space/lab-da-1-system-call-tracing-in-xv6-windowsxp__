@@ -120,3 +120,25 @@ sys_trace(void)
   myproc()->tracing = on;
   return 0;
 }
+
+uint64
+sys_race_inc(void)
+{
+  int iters, use_lock;
+  argint(0, &iters);
+  argint(1, &use_lock);
+  return race_increment(iters, use_lock);
+}
+
+uint64
+sys_race_get(void)
+{
+  return race_get_counter();
+}
+
+uint64
+sys_race_reset(void)
+{
+  return race_reset();
+}
+

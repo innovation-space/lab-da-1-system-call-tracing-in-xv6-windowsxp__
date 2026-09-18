@@ -44,4 +44,8 @@ entry("pause");
 entry("uptime");
 entry("sync");
 entry("trace");
+entry("race_inc");
+entry("race_get");
+entry("race_reset");
+
 

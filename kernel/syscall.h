@@ -22,3 +22,6 @@
 #define SYS_close  21
 #define SYS_sync   22
 #define SYS_trace  23
+#define SYS_race_inc   24
+#define SYS_race_get   25
+#define SYS_race_reset 26

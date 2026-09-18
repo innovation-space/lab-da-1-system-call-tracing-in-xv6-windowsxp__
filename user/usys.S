@@ -115,3 +115,18 @@ trace:
  li a7, SYS_trace
  ecall
  ret
+.global race_inc
+race_inc:
+ li a7, SYS_race_inc
+ ecall
+ ret
+.global race_get
+race_get:
+ li a7, SYS_race_get
+ ecall
+ ret
+.global race_reset
+race_reset:
+ li a7, SYS_race_reset
+ ecall
+ ret

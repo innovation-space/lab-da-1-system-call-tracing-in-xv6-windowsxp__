@@ -45,7 +45,7 @@ forktest(void)
 
   print("fork test\n");
   30:	00000517          	auipc	a0,0x0
-  34:	41050513          	addi	a0,a0,1040 # 440 <trace+0xe>
+  34:	42850513          	addi	a0,a0,1064 # 458 <race_reset+0xe>
   38:	fc9ff0ef          	jal	0 <print>
 
   for (n = 0; n < N; n++) {
@@ -67,7 +67,7 @@ forktest(void)
   if (n == N) {
     print("fork claimed to work N times!\n");
   52:	00000517          	auipc	a0,0x0
-  56:	43e50513          	addi	a0,a0,1086 # 490 <trace+0x5e>
+  56:	45650513          	addi	a0,a0,1110 # 4a8 <race_reset+0x5e>
   5a:	fa7ff0ef          	jal	0 <print>
     exit(1);
   5e:	4505                	li	a0,1
@@ -80,7 +80,7 @@ forktest(void)
     if (wait(0) < 0) {
       print("wait stopped early\n");
   68:	00000517          	auipc	a0,0x0
-  6c:	3e850513          	addi	a0,a0,1000 # 450 <trace+0x1e>
+  6c:	40050513          	addi	a0,a0,1024 # 468 <race_reset+0x1e>
   70:	f91ff0ef          	jal	0 <print>
       exit(1);
   74:	4505                	li	a0,1
@@ -91,7 +91,7 @@ forktest(void)
   if (wait(0) != -1) {
     print("wait got too many\n");
   7a:	00000517          	auipc	a0,0x0
-  7e:	3ee50513          	addi	a0,a0,1006 # 468 <trace+0x36>
+  7e:	40650513          	addi	a0,a0,1030 # 480 <race_reset+0x36>
   82:	f7fff0ef          	jal	0 <print>
     exit(1);
   86:	4505                	li	a0,1
@@ -114,7 +114,7 @@ forktest(void)
 
   print("fork test OK\n");
   aa:	00000517          	auipc	a0,0x0
-  ae:	3d650513          	addi	a0,a0,982 # 480 <trace+0x4e>
+  ae:	3ee50513          	addi	a0,a0,1006 # 498 <race_reset+0x4e>
   b2:	f4fff0ef          	jal	0 <print>
 }
   b6:	60e2                	ld	ra,24(sp)
@@ -846,3 +846,33 @@ trace:
  434:	00000073          	ecall
  ret
  438:	8082                	ret
+
+000000000000043a <race_inc>:
+.global race_inc
+race_inc:
+ li a7, SYS_race_inc
+ 43a:	48e1                	li	a7,24
+ ecall
+ 43c:	00000073          	ecall
+ ret
+ 440:	8082                	ret
+
+0000000000000442 <race_get>:
+.global race_get
+race_get:
+ li a7, SYS_race_get
+ 442:	48e5                	li	a7,25
+ ecall
+ 444:	00000073          	ecall
+ ret
+ 448:	8082                	ret
+
+000000000000044a <race_reset>:
+.global race_reset
+race_reset:
+ li a7, SYS_race_reset
+ 44a:	48e9                	li	a7,26
+ ecall
+ 44c:	00000073          	ecall
+ ret
+ 450:	8082                	ret

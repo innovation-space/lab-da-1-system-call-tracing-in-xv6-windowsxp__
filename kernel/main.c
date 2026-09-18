@@ -29,6 +29,7 @@ main()
     fileinit();         // file table
     virtio_disk_init(); // emulated hard disk
     userinit();         // first user process
+    race_init();        // shared resource and spinlock initialization
     __atomic_thread_fence(__ATOMIC_SEQ_CST);
     started = 1;
   } else {
